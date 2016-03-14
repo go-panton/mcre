@@ -1,6 +1,7 @@
 package mcre
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -24,31 +25,27 @@ type PutObjectOutput struct {
 	VersionID string `json:"version_id,omitempty"`
 }
 
-// PutObject adds an object to a bucket
 // TODO: come back to put object into database instead of fs.
 // TODO: might want to allow user to pre-set target directory.
-// TODO: to have custom error message
-func (mcre *MCRE) PutObject(input *PutObjectInput) (output *PutObjectOutput, err error) {
 
-	dir := input.Bucket
-	file := input.Key
-	content := input.Body
+// PutObject mkdirs a root directory with bucket, creates a file with
+// bucket/key and writes file content with body from http-request, and returns
+// the etag from hashing the file.
+func (mcre *MCRE) PutObject(bucket, key string, content io.Reader) (string, error) {
 
 	// TODO: Existing file issue.
-	if err := os.MkdirAll(input.Bucket, os.ModePerm); err != nil && !os.IsExist(err) {
-		return nil, err
+	if err := os.MkdirAll(bucket, os.ModePerm); err != nil && !os.IsExist(err) {
+		return "", fmt.Errorf("create root-dir %v: %v", bucket, err)
 	}
 
-	fd, err := os.OpenFile(filepath.Join(dir, file), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
+	file, err := os.OpenFile(filepath.Join(bucket, key), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
-		return nil, err
+		return "", fmt.Errorf("create file %v: %v", key, err)
 	}
 
-	if _, err := io.Copy(fd, content); err != nil {
-		return nil, err
+	if _, err := io.Copy(file, content); err != nil {
+		return "", fmt.Errorf("create file %v: %v", key, err)
 	}
 
-	output.Etag = "ETAG-to-be-implemented"
-
-	return
+	return "etag-to-be-implemented", nil
 }
