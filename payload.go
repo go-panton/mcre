@@ -6,7 +6,7 @@ import "io"
 type PutObjectInput struct {
 	Bucket string
 	Key    string
-	Body   io.ReadCloser
+	Body   io.Reader
 }
 
 // PutObjectOutput is the payload of PutObject
