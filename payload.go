@@ -1,4 +1,4 @@
-package naive
+package mcre
 
 import "io"
 
