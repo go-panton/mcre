@@ -22,9 +22,7 @@ func MakeHandler(ctx context.Context, s Service, logger kitlog.Logger) http.Hand
 		EncodePutObject,
 	)
 	r := mux.NewRouter()
-
 	r.Handle("/v1/{bucket}/{key}", putObjectHandler)
-
 	return r
 }
 
