@@ -4,8 +4,29 @@ import (
 	"fmt"
 	"net/http"
 
+	kitlog "github.com/go-kit/kit/log"
+	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	"golang.org/x/net/context"
 )
+
+// MakeHandler creates gokit-handler per API with context, mcre-service and
+// logger, then mux maps url to each respective api-handler, finally mux returns
+// as an api-router.
+func MakeHandler(ctx context.Context, s Service, logger kitlog.Logger) http.Handler {
+
+	putObjectHandler := kithttp.NewServer(
+		ctx,
+		MakePutObjectEndpoint(s),
+		DecodePutObject,
+		EncodePutObject,
+	)
+	r := mux.NewRouter()
+
+	r.Handle("/v1/{bucket}/{key}", putObjectHandler)
+
+	return r
+}
 
 // DecodePutObject decodes path from request, assigns values into PutObjectInput
 // struct.
