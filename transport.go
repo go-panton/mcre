@@ -7,21 +7,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// EncodePutObject packs info to be sent over netork.
-//
-// TODO: content length?s
-//
-// Note:
-//	- no body content.
-//	- set header["etag"]
-//  -
-func EncodePutObject(w http.ResponseWriter, output interface{}) error {
-	out := output.(PutObjectOutput)
-	w.Header().Set("ETag", out.Etag)
-
-	return nil
-}
-
 // DecodePutObject decodes path from request, assigns values into PutObjectInput
 // struct.
 //
@@ -40,5 +25,22 @@ func DecodePutObject(request *http.Request) (interface{}, error) {
 		return nil, fmt.Errorf("empty key")
 	}
 
+	defer request.Body.Close()
+
 	return &PutObjectInput{Bucket: bucket, Key: key, Body: request.Body}, nil
+}
+
+// EncodePutObject packs info to be sent over netork.
+//
+// TODO: content length?s
+//
+// Note:
+//	- no body content.
+//	- set header["etag"]
+//  -
+func EncodePutObject(w http.ResponseWriter, output interface{}) error {
+	out := output.(PutObjectOutput)
+	w.Header().Set("ETag", out.Etag)
+
+	return nil
 }
