@@ -2,25 +2,27 @@
 Panton Multi-Content Repository Service (Panton MCRE), provides developers and IT teams with secure, durable, highly-scalable cloud storage.
 
 
-## Restful-API
+# Restful-API
 
-1. /{bucket}
+##1. Files: get
 
-- Put
-- Post
-- Delete
-- Get
+Gets a file's metadata or content by ID.
 
-2. /{bucket}/{key}
-- Put
-  - put new object in bucket. (octet-stream)
+###Request
 
-- Post
-  -
-  -
+####HTTP request
+```sh
+GET https://www.googleapis.com/drive/v2/files/:fileId
+```
+####Parameters
 
-- Delete
-  - remove object in bucket.
+Parameter name | Value | Description
+--- | --- | --- |
+*fileId* | *string* | The ID of the file.
 
-- Get
-  - get object in specified in bucket. (octet-stream)
+
+####Request Body
+Do not supply a request body with this method
+
+###Response
+If successful, this method returns a [Files resource]() in the response body.
