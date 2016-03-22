@@ -10,18 +10,18 @@ Gets a file's metadata or content by ID.
 
 ###Request
 
-####HTTP request
+#####HTTP request
 ```sh
 GET https://www.panton.com/mcre/v1/files/:fileId
 ```
-####Parameters
+#####Parameters
 
 Parameter name | Value | Description
 --- | --- | --- |
 fileId | string | The ID of the file.
 
 
-####Request Body
+#####Request Body
 Do not supply a request body with this method
 
 ###Response
