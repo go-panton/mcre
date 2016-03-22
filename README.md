@@ -12,13 +12,13 @@ Gets a file's metadata or content by ID.
 
 ####HTTP request
 ```sh
-GET https://www.googleapis.com/drive/v2/files/:fileId
+GET https://www.panton.com/mcre/v1/files/:fileId
 ```
 ####Parameters
 
 Parameter name | Value | Description
 --- | --- | --- |
-*fileId* | *string* | The ID of the file.
+fileId | string | The ID of the file.
 
 
 ####Request Body
