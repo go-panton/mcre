@@ -10,7 +10,7 @@ Gets a file's metadata or content by ID.
 
 ###Request
 
-**HTTP request**
+#####HTTP request
 ```sh
 GET https://www.panton.com/mcre/v1/files/:fileId
 ```
