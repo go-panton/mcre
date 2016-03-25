@@ -17,7 +17,6 @@ type service struct{}
 func (svc *service) User(username, password string) (bool, error) {
 	if username != "" && password != "" {
 		return true, nil
-	} else {
-		return false, errors.New("Username is : " + username + " Password is: " + password)
 	}
+	return false, errors.New("Username is : " + username + " Password is: " + password)
 }
