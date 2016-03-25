@@ -5,9 +5,6 @@ import "errors"
 // Service is the interface of User API
 type Service interface {
 	User(username, password string) (bool, error)
-	//	Login(username,password string)(bool, error)
-	//	Logout()
-	//	DeleteUser(username string)
 }
 
 // NewService instantiates new user-service.

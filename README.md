@@ -12,7 +12,7 @@ Gets a file's metadata or content by ID.
 
 #####HTTP request
 ```sh
-GET https://www.panton.com/mcre/v1/files/:fileId
+GET https://api.panton.com/mcre/v1/files/:fileId
 ```
 #####Parameters
 
