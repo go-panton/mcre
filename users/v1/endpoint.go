@@ -15,9 +15,9 @@ type SignUpRequest struct {
 
 //SignUpResponse is a response struct
 type SignUpResponse struct {
-	createdAt    time.Time
-	userID       int
-	sessionToken string
+	CreatedAt    time.Time `json:"createdat"`
+	UserID       int       `json:"userid"`
+	SessionToken string    `json:"sessiontoken"`
 }
 
 func makeSignUpEndPoint(svc Service) endpoint.Endpoint {
