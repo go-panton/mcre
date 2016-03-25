@@ -1,6 +1,8 @@
-package user
+package users
 
 import (
+	"time"
+
 	"github.com/go-kit/kit/endpoint"
 	"golang.org/x/net/context"
 )
@@ -13,17 +15,18 @@ type SignUpRequest struct {
 
 //SignUpResponse is a response struct
 type SignUpResponse struct {
-	Success bool
-	Err     string
+	createdAt    time.Time
+	userID       int
+	sessionToken string
 }
 
 func makeSignUpEndPoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(SignUpRequest)
-		check, err := svc.User(req.Username, req.Password)
+		err := svc.User(req.Username, req.Password)
 		if err != nil {
-			return SignUpResponse{check, err.Error()}, nil
+			return SignUpResponse{time.Now(), 0, ""}, nil
 		}
-		return SignUpResponse{check, ""}, nil
+		return SignUpResponse{time.Now(), 1, "xDXDXDXDXD"}, nil
 	}
 }

@@ -1,10 +1,10 @@
-package user
+package users
 
 import "errors"
 
 // Service is the interface of User API
 type Service interface {
-	User(username, password string) (bool, error)
+	User(username, password string) error
 }
 
 // NewService instantiates new user-service.
@@ -14,9 +14,9 @@ func NewService() Service {
 
 type service struct{}
 
-func (svc *service) User(username, password string) (bool, error) {
+func (svc *service) User(username, password string) error {
 	if username != "" && password != "" {
-		return true, nil
+		return nil
 	}
-	return false, errors.New("Username is : " + username + " Password is: " + password)
+	return errors.New("Username is : " + username + " Password is: " + password)
 }
