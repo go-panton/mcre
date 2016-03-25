@@ -13,8 +13,8 @@ type SignUpRequest struct {
 
 //SignUpResponse is a response struct
 type SignUpResponse struct {
-	Success bool
-	Err     string
+	Status bool
+	Err    string
 }
 
 func makeSignUpEndPoint(svc Service) endpoint.Endpoint {
