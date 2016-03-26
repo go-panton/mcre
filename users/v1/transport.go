@@ -41,6 +41,8 @@ func encodeSignUpResponse(w http.ResponseWriter, response interface{}) error {
 	if err != nil {
 		return errors.New("Unable to marshal repsonse into json")
 	}
+	w.Header().Add("Status", http.StatusText(http.StatusCreated))
+	w.Header().Add("Location", "http://localhost:8282/users/1")
 	w.Write(respb)
 	return nil
 }
