@@ -6,7 +6,6 @@
 package download
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 
@@ -18,26 +17,36 @@ import (
 
 // MakeHandler returns a handler for the micre service.
 func MakeHandler(ctx context.Context, svc Service) http.Handler {
+
+	opts := []kithttp.ServerOption{
+		kithttp.ServerErrorEncoder(encodeError),
+	}
+
 	simpleDownloadHandler := kithttp.NewServer(
 		ctx,
 		makeDownloadEndpoint(svc),
 		decodeDownloadRequest,
 		encodeDownloadResponse,
+		opts...,
 	)
+
 	r := mux.NewRouter()
 	r.Handle("/download/v1/{fileid}", simpleDownloadHandler).Methods("GET")
 
 	return r
 }
 
+// encodeError is an adapter function that writes HTTP error response, with
+// message from err, and status-code according to error type.
+func encodeError(w http.ResponseWriter, err error) {
+	switch err.(type) {
+	}
+}
+
 // @/download/v1/:fileid
 func decodeDownloadRequest(r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
-	fid, ok := vars["fileid"]
-
-	if !ok {
-		return nil, fmt.Errorf("error: %v", "bad route")
-	}
+	fid := vars["fileid"]
 
 	return downloadRequest{fileid: fid}, nil
 }
