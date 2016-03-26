@@ -15,6 +15,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type badRequestError error
+
 // MakeHandler returns a handler for the micre service.
 func MakeHandler(ctx context.Context, svc Service) http.Handler {
 
@@ -40,6 +42,10 @@ func MakeHandler(ctx context.Context, svc Service) http.Handler {
 // message from err, and status-code according to error type.
 func encodeError(w http.ResponseWriter, err error) {
 	switch err.(type) {
+	case badRequestError:
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	default:
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
