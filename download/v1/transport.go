@@ -24,12 +24,8 @@ func MakeHandler(ctx context.Context, svc Service) http.Handler {
 		decodeDownloadRequest,
 		encodeDownloadResponse,
 	)
-
 	r := mux.NewRouter()
 	r.Handle("/download/v1/{fileid}", simpleDownloadHandler).Methods("GET")
-	//r.Handle("/", simpleDownloadHandler).Methods("GET")
-
-	fmt.Println("MakeHandler")
 
 	return r
 }
@@ -48,6 +44,7 @@ func decodeDownloadRequest(r *http.Request) (interface{}, error) {
 
 func encodeDownloadResponse(w http.ResponseWriter, response interface{}) error {
 	resp := response.(downloadResponse)
+	w.Header().Set("etag", "whatisetag")
 	io.Copy(w, resp.filecontent)
 	return nil
 }
