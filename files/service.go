@@ -1,8 +1,4 @@
-// Package download contains the following:
-//
-// Service
-// API implementations
-package download
+package files
 
 import (
 	"io"

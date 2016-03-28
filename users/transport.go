@@ -21,7 +21,7 @@ func MakeHandler(ctx context.Context, svc Service) http.Handler {
 	)
 
 	r := mux.NewRouter()
-	r.Handle("/users/v1", signUpHandler).Methods("POST")
+	r.Handle("/users", signUpHandler).Methods("POST")
 
 	return r
 }

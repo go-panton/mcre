@@ -1,18 +1,11 @@
-// Package download contains the following:
-//
-// encode
-// decode
-// makehandler
-package download
+package files
 
 import (
-	"io"
 	"net/http"
-
-	"golang.org/x/net/context"
 
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	"golang.org/x/net/context"
 )
 
 type badRequestError error
@@ -33,7 +26,7 @@ func MakeHandler(ctx context.Context, svc Service) http.Handler {
 	)
 
 	r := mux.NewRouter()
-	r.Handle("/download/v1/{fileid}", simpleDownloadHandler).Methods("GET")
+	r.Handle("/files/{fileid}", simpleDownloadHandler).Methods("GET")
 
 	return r
 }
@@ -47,19 +40,4 @@ func encodeError(w http.ResponseWriter, err error) {
 	default:
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-}
-
-// @/download/v1/:fileid
-func decodeDownloadRequest(r *http.Request) (interface{}, error) {
-	vars := mux.Vars(r)
-	fid := vars["fileid"]
-
-	return downloadRequest{fileid: fid}, nil
-}
-
-func encodeDownloadResponse(w http.ResponseWriter, response interface{}) error {
-	resp := response.(downloadResponse)
-	w.Header().Set("etag", "whatisetag")
-	io.Copy(w, resp.filecontent)
-	return nil
 }

@@ -7,31 +7,25 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/go-panton/mcre/download/v1"
-	"github.com/go-panton/mcre/users/v1"
+	"github.com/go-panton/mcre/files"
+	"github.com/go-panton/mcre/users"
 )
 
 var (
-	httpAddr = flag.String("http", ":8282", "Listen address")
+	port = flag.String("port", ":8282", "Listen port")
 )
 
 func main() {
 	flag.Parse()
 
-	ds := download.NewService()
+	fs := files.NewService()
 	us := users.NewService()
 	ctx := context.Background()
 
 	mux := http.NewServeMux()
-	mux.Handle("/download/v1/", download.MakeHandler(ctx, ds))
-	mux.Handle("/users/v1", users.MakeHandler(ctx, us))
+	mux.Handle("/mcre/v1/files/", files.MakeHandler(ctx, fs))
+	mux.Handle("/mcre/v1/users/", users.MakeHandler(ctx, us))
 
 	http.Handle("/", mux)
-	log.Fatal(http.ListenAndServe(*httpAddr, nil))
+	log.Fatal(http.ListenAndServe(*port, nil))
 }
-
-// type server struct{}
-//
-// func (s server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-// 	fmt.Fprintln(w, "woi")
-// }
