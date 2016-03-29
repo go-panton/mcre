@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// @/download/v1/:fileid
+// /files/:fileid
 func decodeDownloadRequest(r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 	fid := vars["fileid"]

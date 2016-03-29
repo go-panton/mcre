@@ -26,7 +26,8 @@ func MakeHandler(ctx context.Context, svc Service) http.Handler {
 	)
 
 	r := mux.NewRouter()
-	r.Handle("/files/{fileid}", simpleDownloadHandler).Methods("GET")
+	s := r.PathPrefix("/files").Subrouter()
+	s.Handle("/{fileid}", simpleDownloadHandler).Methods("GET")
 
 	return r
 }
