@@ -1,22 +1,26 @@
 package users
 
-import "errors"
+import (
+	"errors"
+	"github.com/go-panton/mcre/users/model"
+)
 
 // Service is the interface of User API
 type Service interface {
-	User(username, password string) error
+	SignUp(username, password string) error
 }
-
+type service struct{
+	repo models.UserRepository
+}
 // NewService instantiates new user-service.
-func NewService() Service {
-	return &service{}
+func NewService(repo models.UserRepository) Service {
+	return &service{repo}
 }
 
-type service struct{}
-
-func (svc *service) User(username, password string) error {
-	if username != "" && password != "" {
-		return nil
+func (svc *service) SignUp(username, password string) error {
+	if username == "" || password == "" {
+		return errors.New("Username is : " + username + " Password is: " + password)
 	}
-	return errors.New("Username is : " + username + " Password is: " + password)
+
+	return svc.repo.Insert(username,password)
 }

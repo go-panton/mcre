@@ -23,7 +23,7 @@ type SignUpResponse struct {
 func makeSignUpEndPoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(SignUpRequest)
-		err := svc.User(req.Username, req.Password)
+		err := svc.SignUp(req.Username, req.Password)
 		if err != nil {
 			return SignUpResponse{time.Now(), 0, ""}, nil
 		}
