@@ -7,6 +7,6 @@ type User struct{
 
 // Repository provides access a cargo store.
 type UserRepository interface {
-	Find(userId string) (*User, error)
+	Find(username string) (*User, error)
 	Insert(username,password string) (error)
 }

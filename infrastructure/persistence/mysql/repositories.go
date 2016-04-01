@@ -12,13 +12,13 @@ type userRepository struct{
 	db *sql.DB
 }
 
-func ConnectDatabase(connString string){
+func ConnectDatabase(connString string) *sql.DB{
 	db, err := sql.Open("mysql", connString)
-	defer db.Close()
 
 	if err != nil {
 		fmt.Println("Error connecting to database")
 	}
+	return db
 }
 
 func NewUser(db *sql.DB) models.UserRepository{
@@ -26,14 +26,12 @@ func NewUser(db *sql.DB) models.UserRepository{
 }
 
 func (r *userRepository)Insert(username,password string) error{
-	userid := 35325//TODO: remove userid field in mysql database
-
-	insStat, err := r.db.Prepare("INSERT user SET username=?,password=?,userid=?")
+	insStat, err := r.db.Prepare("INSERT user SET username=?,password=?")
 
 	if err != nil {
 		return err
 	}
-	_, err1 := insStat.Exec(username,password,userid)
+	_, err1 := insStat.Exec(username,password)
 
 	if err1 != nil {
 		return err1
@@ -41,16 +39,15 @@ func (r *userRepository)Insert(username,password string) error{
 	return nil
 }
 
-func (r *userRepository)Find(userID string) (*models.User, error) {
-	username := "alex"
-	password := "root"
-	err := r.db.QueryRow("SELECT * FROM user WHERE username=? AND password=?",username,password).Scan(&models.User{})
+func (r *userRepository)Find(username string) (*models.User, error) {
+	var resultName,password string
+	err := r.db.QueryRow("SELECT * FROM user WHERE username=?",username).Scan(&resultName,&password)
 	switch {
 	case err == sql.ErrNoRows:
 		return nil, err
 	case err != nil:
 		return nil, err
 	default:
-		return &models.User{},nil
+		return &models.User{resultName,password},nil
 	}
 }

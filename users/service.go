@@ -3,6 +3,7 @@ package users
 import (
 	"errors"
 	"github.com/go-panton/mcre/users/model"
+	"database/sql"
 )
 
 // Service is the interface of User API
@@ -18,8 +19,18 @@ func NewService(repo models.UserRepository) Service {
 }
 
 func (svc *service) SignUp(username, password string) error {
-	if username == "" || password == "" {
-		return errors.New("Username is : " + username + " Password is: " + password)
+	if username == "" {
+		return errors.New("The username is missing or empty.")
+	}else if password == "" {
+		return errors.New("The password is missing or empty.")
+	}
+
+	searchUser, err := svc.repo.Find(username)
+	if err != nil && err != sql.ErrNoRows{
+		return errors.New(err.Error())
+	}
+	if searchUser != nil{
+		return errors.New("The username has already been taken.")
 	}
 
 	return svc.repo.Insert(username,password)
