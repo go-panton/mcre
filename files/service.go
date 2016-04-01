@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+type BadRequestError error
+
 // Service is the interface of download API
 type Service interface {
 	//Download(simple) opens and reads file based on fileid
