@@ -13,11 +13,16 @@ import (
 
 //MakeHandler create a func to handle that url
 func MakeHandler(ctx context.Context, svc Service) http.Handler {
+	opts := []kithttp.ServerOption{
+		kithttp.ServerErrorEncoder(encodeError),
+	}
+
 	signUpHandler := kithttp.NewServer(
 		ctx,
 		makeSignUpEndPoint(svc),
 		decodeSignUpRequest,
 		encodeSignUpResponse,
+		opts...,
 	)
 
 	r := mux.NewRouter()
@@ -45,4 +50,13 @@ func encodeSignUpResponse(w http.ResponseWriter, response interface{}) error {
 	w.Header().Add("Location", "http://localhost:8282/users/v1/1")
 	w.Write(respb)
 	return nil
+}
+
+func encodeError(w http.ResponseWriter, err error){
+	switch err.(type) {
+	case kithttp.BadRequestError:
+		http.Error(w,err.Error(), http.StatusBadRequest)
+	default:
+		http.Error(w,err.Error(), http.StatusInternalServerError)
+	}
 }

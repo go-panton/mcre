@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -11,10 +10,9 @@ import (
 	"github.com/go-panton/mcre/files"
 	"github.com/go-panton/mcre/users"
 
-	mgo "gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-	"github.com/go-panton/infrastructure/persistence/mongo"
-	"github.com/go-panton/infrastructure/persistence/mysql"
+	"github.com/go-panton/mcre/infrastructure/persistence/mongo"
+
+	"github.com/go-panton/mcre/infrastructure/persistence/mysql"
 )
 
 var (
@@ -23,22 +21,16 @@ var (
 
 func main() {
 	flag.Parse()
-	session, err := mgo.Dial("localhost")
-	if err != nil {
-		fmt.Println(err)
-	}
 
-	//DB for database name C for collections which equivalent to tables in relational database
-	mongoDbName := "go_panton"
-	mongoColName := "users"
+	//mongoDbName := "go_panton"
+	//mongoColName := "user"
 	mysqlconnectionString := "root:root123@/go_panton"
 
 	fs := files.NewService()
-	//temporary check to switch between different database
-	if mongoDbName != ""{
-		us := users.NewService(mongo.NewUser(mongo.ConnectDatabase(mongoDbName,mongoColName)))
-	}
+
+	//us := users.NewService(mongo.NewUser(mongo.ConnectDatabase(mongoDbName,mongoColName)))
 	us := users.NewService(mysql.NewUser(mysql.ConnectDatabase(mysqlconnectionString)))
+
 	ctx := context.Background()
 
 	mux := http.NewServeMux()

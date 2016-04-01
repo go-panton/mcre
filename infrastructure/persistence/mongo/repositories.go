@@ -5,6 +5,7 @@ import(
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/go-panton/mcre/users/model"
+	"fmt"
 )
 
 type userRepository struct {
@@ -12,6 +13,12 @@ type userRepository struct {
 }
 
 func ConnectDatabase(dbName,colName string) *mgo.Collection {
+
+	session, err := mgo.Dial("localhost")
+	if err != nil {
+		fmt.Println(err)
+	}
+	//DB for database name C for collections which equivalent to tables in relational database
 	return session.DB(dbName).C(colName)
 }
 
@@ -30,9 +37,9 @@ func (r *userRepository)Insert(username,password string) error {
 	return nil
 }
 
-func (r *userRepository) Find(userId string) (*models.User, error) {
+func (r *userRepository) Find(username string) (*models.User, error) {
 	result := &models.User{}
-	err := r.col.Find(bson.M{"username":"alex"}).One(result)
+	err := r.col.Find(bson.M{"username":username}).One(result)
 	if err != nil {
 		return nil,err
 	}

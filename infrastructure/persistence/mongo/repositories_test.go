@@ -15,8 +15,8 @@ func TestMongo(t *testing.T){
 	}
 
 	//DB for database name C for collections which equivalent to tables in relational database
-	user := session.DB("go_panton").C("users")
+	user := session.DB("go_panton").C("user")
 
-	NewUser(user).Insert(&models.User{"ale333x","213"})
+	NewUser(user).Insert(&models.User{"alex","213"})
 
 }
