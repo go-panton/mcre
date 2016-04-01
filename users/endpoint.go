@@ -1,11 +1,8 @@
 package users
 
-import (
-	"time"
+import "time"
 
-	"github.com/go-kit/kit/endpoint"
-	"golang.org/x/net/context"
-)
+type BadRequestError error
 
 //SignUpRequest is a request struct
 type SignUpRequest struct {
@@ -15,23 +12,12 @@ type SignUpRequest struct {
 
 //SignUpResponse is a response struct
 type SignUpResponse struct {
-	CreatedAt    time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	//UserID       int       `json:"userid"`
 	//SessionToken string    `json:"sessiontoken"`
 }
 
 type ErrorResponse struct {
-	Code        int     `json:"code"`
-	Message     string  `json:"message"`
-}
-
-func makeSignUpEndPoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(SignUpRequest)
-		err := svc.SignUp(req.Username, req.Password)
-		if err != nil {
-			return SignUpResponse{time.Now()}, err
-		}
-		return SignUpResponse{time.Now()}, nil
-	}
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
