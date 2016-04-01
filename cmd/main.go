@@ -5,14 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"golang.org/x/net/context"
-
-	"github.com/go-panton/mcre/files"
-	"github.com/go-panton/mcre/users"
-
-	"github.com/go-panton/mcre/infrastructure/persistence/mongo"
-
-	"github.com/go-panton/mcre/infrastructure/persistence/mysql"
+	"github.com/go-panton/mcre/infrastructure/gokit"
 )
 
 var (
@@ -22,21 +15,6 @@ var (
 func main() {
 	flag.Parse()
 
-	//mongoDbName := "go_panton"
-	//mongoColName := "user"
-	mysqlconnectionString := "root:root123@/go_panton"
-
-	fs := files.NewService()
-
-	//us := users.NewService(mongo.NewUser(mongo.ConnectDatabase(mongoDbName,mongoColName)))
-	us := users.NewService(mysql.NewUser(mysql.ConnectDatabase(mysqlconnectionString)))
-
-	ctx := context.Background()
-
-	mux := http.NewServeMux()
-	mux.Handle("/mcre/v1/files/", files.MakeHandler(ctx, fs))
-	mux.Handle("/mcre/v1/users/", users.MakeHandler(ctx, us))
-
-	http.Handle("/", mux)
+	http.Handle("/", gokit.NewKit())
 	log.Fatal(http.ListenAndServe(*port, nil))
 }
