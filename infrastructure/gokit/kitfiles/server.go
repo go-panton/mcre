@@ -1,4 +1,4 @@
-package files
+package kitfiles
 
 // MakeHandler returns a handler for the micre service.
 import (

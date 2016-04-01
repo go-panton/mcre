@@ -1,4 +1,4 @@
-package files
+package kitfiles
 
 import (
 	"github.com/go-kit/kit/endpoint"
