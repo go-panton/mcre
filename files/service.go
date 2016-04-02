@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// BadRequestError is a http-error-wrapper of 404
 type BadRequestError error
 
 // Service is the interface of download API
