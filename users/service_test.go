@@ -2,61 +2,33 @@ package users
 
 import (
 	"testing"
-	"fmt"
+
+	"errors"
+
+	"github.com/go-panton/mcre/infra/store/mongo"
 	"github.com/go-panton/mcre/users/model"
-	"github.com/go-panton/mcre/infrastructure/persistence/mongo"
 )
 
-var tests = []models.User{
-	{"alex", ""},//password empty
-	{"","root"},//username empty
-	{"",""},//both field empty
-	{"alex","root"},//username already exist in database
-	{"Rex","Gear"},//success case
+type testPair struct {
+	TestData models.User
+	Expected BadRequestError
 }
 
-//func TestService(t *testing.T){
-//	var repo models.UserRepository
-//	for _, pair := range tests {
-//		err := NewService(repo).SignUp(pair.Username,pair.Password)
-//		if err != nil {
-//			fmt.Println(err.Error())
-//		}
-//		return
-//	}
-//}
+var tests = []testPair{
+	{models.User{"alex", ""}, BadRequestError{errors.New("The password is empty.")}},
+	{models.User{"", "root"}, BadRequestError{errors.New("The username is empty.")}},
+	{models.User{"", ""}, BadRequestError{errors.New("The username is empty.")}},
+	{models.User{"alex", "root"}, BadRequestError{errors.New("The username has already been taken.")}},
+	{models.User{"Rex", "Gear"}, BadRequestError{nil}},
+}
 
-func TestSignUp(t *testing.T){
-	for _,pair := range tests{
-		err := NewService(mongo.NewMockUserRepository()).SignUp(pair.Username,pair.Password)
+func TestSignUp(t *testing.T) {
+	for _, test := range tests {
+		err := NewService(mongo.NewMockUserRepository()).SignUp(test.TestData.Username, test.TestData.Password)
 		if err != nil {
-			fmt.Println(err.Error())
+			if test.Expected.Error() != err.Error() {
+				t.Errorf("Want: \n%#v \nGot: \n%#v", test.Expected, err)
+			}
 		}
 	}
 }
-
-//func TestCaseMongo(t *testing.T) {
-//	session, err := mgo.Dial("localhost")
-//	defer session.Close()
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	handle := MakeHandler(context.Background(),NewService(mongo.NewUser(session.DB("go_panton").C("user"))))
-//	w := httptest.NewRecorder()
-//
-//	for _, pair := range tests{
-//		bytePair, err1 := json.Marshal(pair)
-//		if err1 != nil {
-//			fmt.Println(err1)
-//		}
-//		r, err2 := http.NewRequest("POST", "/users", bytes.NewReader(bytePair))
-//		r.Header.Set("Content-Type","application/json")
-//		if err2 != nil {
-//			log.Fatal(err2)
-//		}
-//		handle.ServeHTTP(w,r)
-//
-//		fmt.Println(w.Code)
-//		fmt.Println(w.Body.String())
-//	}
-//}
