@@ -11,6 +11,7 @@ func TestKeygen(t *testing.T) {
 	tests := []TestCase{
 		{"NODE", 200900},
 		{"", 0},
+		{"FILENAME", 762},
 	}
 
 	for _, test := range tests {
