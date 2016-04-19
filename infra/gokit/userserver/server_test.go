@@ -15,22 +15,29 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"errors"
+
 	"golang.org/x/net/context"
 )
 
-var tests = []models.User{
-	{"alex", ""},     //password empty
-	{"", "root"},     //username empty
-	{"", ""},         //both field empty
-	{"alex", "root"}, //username already exist in database
-	{"Rex", "Gear"},  //success case
+type testPair struct {
+	TestData models.User
+	Expected error
+}
+
+var tests = []testPair{
+	{models.User{"alex", ""}, users.BadRequestError(errors.New("The password is empty."))},
+	{models.User{"", "root"}, users.BadRequestError(errors.New("The username is empty."))},
+	{models.User{"", ""}, users.BadRequestError(errors.New("The username is empty."))},
+	{models.User{"alex", "root"}, users.BadRequestError(errors.New("The username has already been taken."))},
+	{models.User{"Rex", "Gear"}, nil},
 }
 
 func TestServer(t *testing.T) {
 	repo := mongo.NewMockUserRepository()
 
-	for _, pair := range tests {
-		bytePair, err := json.Marshal(pair)
+	for _, test := range tests {
+		bytePair, err := json.Marshal(test)
 		if err != nil {
 			fmt.Println("Error to marshal json")
 		}
@@ -47,7 +54,6 @@ func TestServer(t *testing.T) {
 		fmt.Println(w.Code)
 		fmt.Println(w.Body.String())
 	}
-
 }
 
 func server(repo models.UserRepository) http.Handler {
