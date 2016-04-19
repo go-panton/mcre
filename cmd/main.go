@@ -24,13 +24,15 @@ var (
 func main() {
 	flag.Parse()
 
+	//MongoDB connection
 	//mongoDbName := "go_panton"
 	//mongoColName := "user"
-	mysqlconnectionString := "root:root123@/go_panton"
-
 	//us := users.NewService(mongo.NewUser(mongo.ConnectDatabase(mongoDbName, mongoColName)))
 
+	//MySQL connection
+	mysqlconnectionString := "root:root123@/go_panton"
 	us := users.NewService(mysql.NewUser(mysql.ConnectDatabase(mysqlconnectionString)))
+
 	usersvr := userserver.NewServer(context.Background(), us)
 	usersvr.RouteTo(mcrev1)
 

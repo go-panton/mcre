@@ -4,25 +4,25 @@ Panton Multi-Content Repository Service (Panton MCRE), provides developers and I
 
 # Restful-API
 
-##1. Files: get
+## 1. Files: get
 
 Gets a file's metadata or content by ID.
 
-###Request
+### Request
 
-#####HTTP request
+##### HTTP request
 ```sh
 GET https://api.panton.com/mcre/v1/files/:fileId
 ```
-#####Parameters
+##### Parameters
 
 Parameter name | Value | Description
 --- | --- | --- |
 fileId | string | The ID of the file.
 
 
-#####Request Body
+##### Request Body
 Do not supply a request body with this method
 
-###Response
+### Response
 If successful, this method returns a [Files resource]() in the response body.

@@ -21,7 +21,7 @@ func TestGet(t *testing.T) {
 	seq := mysql.NewMockSeqRepository()
 
 	for _, test := range tests {
-		value, _ := seq.Get(test.key)
+		value, _ := seq.Find(test.key)
 		if value != test.want {
 			t.Errorf("Want: %v, Got: %v", test.want, value)
 		}
