@@ -13,7 +13,7 @@ func makeSignUpEndPoint(svc users.Service) endpoint.Endpoint {
 		req := request.(users.SignUpRequest)
 		err := svc.SignUp(req.Username, req.Password)
 		if err != nil {
-			return users.SignUpResponse{CreatedAt: time.Now()}, err
+			return nil, err
 		}
 		return users.SignUpResponse{CreatedAt: time.Now()}, nil
 	}
