@@ -10,16 +10,16 @@ import (
 )
 
 type testPair struct {
-	TestData models.User
+	TestData model.User
 	Expected BadRequestError
 }
 
 var tests = []testPair{
-	{models.User{"alex", ""}, BadRequestError{errors.New("The password is empty.")}},
-	{models.User{"", "root"}, BadRequestError{errors.New("The username is empty.")}},
-	{models.User{"", ""}, BadRequestError{errors.New("The username is empty.")}},
-	{models.User{"alex", "root"}, BadRequestError{errors.New("The username has already been taken.")}},
-	{models.User{"Rex", "Gear"}, BadRequestError{nil}},
+	{model.User{Username: "alex", Password: ""}, BadRequestError{errors.New("The password is empty.")}},
+	{model.User{Username: "", Password: "root"}, BadRequestError{errors.New("The username is empty.")}},
+	{model.User{Username: "", Password: ""}, BadRequestError{errors.New("The username is empty.")}},
+	{model.User{Username: "alex", Password: "root"}, BadRequestError{errors.New("The username has already been taken.")}},
+	{model.User{Username: "Rex", Password: "Gear"}, BadRequestError{nil}},
 }
 
 func TestSignUp(t *testing.T) {

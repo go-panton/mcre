@@ -21,6 +21,7 @@ type seqRepository struct {
 	db *sql.DB
 }
 
+//ConstructConnString returns the connection string based on username,password and databaseName provided
 func ConstructConnString(username, password, databaseName string) string {
 	connString := username + ":" + password + "@/" + databaseName
 
@@ -29,6 +30,7 @@ func ConstructConnString(username, password, databaseName string) string {
 	return connString
 }
 
+//ConnectDatabase returns a sql.DB connection based on connection string provided
 func ConnectDatabase(connString string) *sql.DB {
 	db, err := sql.Open("mysql", connString)
 
@@ -38,10 +40,12 @@ func ConnectDatabase(connString string) *sql.DB {
 	return db
 }
 
+//NewUser returns a userRepository based on db connection provided
 func NewUser(db *sql.DB) user.UserRepository {
 	return &userRepository{db}
 }
 
+//NewSeq returns a seqRepository based on db connection provided
 func NewSeq(db *sql.DB) id.SeqRepository {
 	return &seqRepository{db}
 }

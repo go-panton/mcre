@@ -2,6 +2,7 @@ package users
 
 import "time"
 
+//BadRequestError struct is the type define to contain the error message
 type BadRequestError struct {
 	Err error
 }

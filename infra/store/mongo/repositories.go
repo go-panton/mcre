@@ -13,6 +13,7 @@ type userRepository struct {
 	col *mgo.Collection
 }
 
+//ConnectDatabase returns connection of mongo database based on dbName and colName provided
 func ConnectDatabase(dbName, colName string) *mgo.Collection {
 
 	session, err := mgo.Dial("localhost")
@@ -23,6 +24,7 @@ func ConnectDatabase(dbName, colName string) *mgo.Collection {
 	return session.DB(dbName).C(colName)
 }
 
+//NewUser return a userRepository based on mongo Collection provided
 func NewUser(col *mgo.Collection) model.UserRepository {
 	return &userRepository{col}
 }
@@ -45,5 +47,14 @@ func (r *userRepository) Find(username string) (*model.User, error) {
 		return nil, err
 	}
 
+	return result, nil
+}
+
+func (r *userRepository) Verify(username, password string) (*model.User, error) {
+	result := &model.User{}
+	err := r.col.Find(bson.M{"username": username, "password": password}).One(result)
+	if err != nil {
+		return nil, err
+	}
 	return result, nil
 }

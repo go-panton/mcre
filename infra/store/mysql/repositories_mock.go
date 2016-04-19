@@ -14,10 +14,12 @@ type mockUserRepository struct {
 type mockSeqRepository struct {
 }
 
+//NewMockUserRepository returns a mock userRepository
 func NewMockUserRepository() user.UserRepository {
 	return &mockUserRepository{}
 }
 
+//NewMockSeqRepository returns a mock seqRepository
 func NewMockSeqRepository() id.SeqRepository {
 	return &mockSeqRepository{}
 }

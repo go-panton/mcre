@@ -80,53 +80,59 @@ type PreparedStmt struct {
 }
 
 const (
-	//DB_USER_NAME is the username for the database
-	DB_USER_NAME = "root"
+	//dbUserName is the username for the database
+	dbUserName = "root"
 
-	//DB_PASSWORD is the password for the database
-	DB_PASSWORD = "root123"
+	//dbPassword is the password for the database
+	dbPassword = "root123"
 
-	//DB_NAME is the name of the database
-	DB_NAME = "ptd_new"
+	//dbName is the name of the database
+	dbName = "ptd_new"
 
-	//FILE_NAME is the name of the file that is going to be created
-	FILE_NAME = "test2.txt"
+	//fileName is the name of the file that is going to be created
+	fileName = "test2.txt"
 
-	//FILE_EXT is the extension of the file
-	FILE_EXT = ".txt"
+	//fileExt is the extension of the file
+	fileExt = ".txt"
 
-	//FILE_SIZE is the size of the file
-	FILE_SIZE = 2048
+	//fileSize is the size of the file
+	fileSize = 2048
 
-	//STORAGE_FOLDER define the folder where all files get stored in
-	STORAGE_FOLDER = "D:\\PantonSys\\PTD\\ISOStorage\\1\\"
+	//storageFolder define the folder where all files get stored in
+	storageFolder = "D:\\PantonSys\\PTD\\ISOStorage\\1\\"
 
-	//DATE_ONLY format the time to use date only
-	DATE_ONLY = "2006-01-02"
+	//dateOnly format the time to use date only
+	dateOnly = "2006-01-02"
 
-	//DATE_AND_TIME format the time to have date and time only
-	DATE_AND_TIME = "2006-01-02 15:04:05"
+	//dateAndTime format the time to have date and time only
+	dateAndTime = "2006-01-02 15:04:05"
 
-	//GRAPH_ID is the graph for the file
-	GRAPH_ID = 200001
+	//graphID is the graph for the file
+	graphID = 200001
 
-	FILE_TYPE = "FILE"
+	//fileType is the file type
+	fileType = "FILE"
 
-	USER_ID = 1
+	//userID is the user id for the file created
+	userID = 1
 
-	VER_STATE = 1
+	//verState is the version state of the file
+	verState = 1
 
-	PARENT_ID = 200004
+	//parentID is the parent folder node id
+	parentID = 200004
 
-	LINK_TYPE = "FILE"
+	//linkType is the link type for the nodelink
+	linkType = "FILE"
 
-	FILE_REMARKS = "This is test Version"
+	//fileRemarks is the remarks for the file
+	fileRemarks = "This is test Version"
 )
 
 //mock_insert_file mock a file insert operation in mcre
 func mockInsertFile() error {
 
-	connString := mysql.ConstructConnString(DB_USER_NAME, DB_PASSWORD, DB_NAME)
+	connString := mysql.ConstructConnString(dbUserName, dbPassword, dbName)
 
 	seqDatabase := mysql.ConnectDatabase(connString)
 
@@ -141,10 +147,10 @@ func mockInsertFile() error {
 
 	fmt.Println("New FILE ID: ", fileID)
 
-	var timeStart = time.Now().Format(DATE_ONLY)
-	var timeAfter = time.Now().Add(150 * time.Hour).Format(DATE_ONLY)
-	var fgName = strconv.Itoa(fileID) + FILE_EXT
-	var destPath = STORAGE_FOLDER + fgName
+	var timeStart = time.Now().Format(dateOnly)
+	var timeAfter = time.Now().Add(150 * time.Hour).Format(dateOnly)
+	var fgName = strconv.Itoa(fileID) + fileExt
+	var destPath = storageFolder + fgName
 
 	nodeID, err := seq.Find("NODE") //Generate a new ID for Node
 	if err != nil {
@@ -154,34 +160,34 @@ func mockInsertFile() error {
 	fmt.Println("New Node ID: ", nodeID)
 
 	//create a test file
-	_, err = CreateFile(FILE_NAME, FILE_SIZE)
+	_, err = CreateFile(fileName, fileSize)
 	if err != nil {
 		return errors.New("Error on Create File " + err.Error())
 	}
 
 	//populate the struct with data
-	newNode, err := CreateNewNode(nodeID, FILE_NAME, timeStart, GRAPH_ID, FILE_TYPE, USER_ID)
+	newNode, err := CreateNewNode(nodeID, fileName, timeStart, graphID, fileType, userID)
 	if err != nil {
 		return errors.New("Error on populating Node struct " + err.Error())
 	}
-	newFmedia, err := CreateNewFm(nodeID, FILE_NAME, FILE_EXT, STORAGE_FOLDER, fgName, FILE_NAME, FILE_REMARKS, FILE_SIZE, 1, 1)
+	newFmedia, err := CreateNewFm(nodeID, fileName, fileExt, storageFolder, fgName, fileName, fileRemarks, fileSize, 1, 1)
 	if err != nil {
 		return errors.New("Error on populating Fmedia struct" + err.Error())
 	}
-	newNL, err := CreateNewNL(PARENT_ID, nodeID, LINK_TYPE)
+	newNL, err := CreateNewNL(parentID, nodeID, linkType)
 	if err != nil {
 		return errors.New("Error on populating Nodelink struct" + err.Error())
 	}
-	newFv, err := CreateNewFv(nodeID, timeAfter, FILE_REMARKS, timeStart, "1", VER_STATE)
+	newFv, err := CreateNewFv(nodeID, timeAfter, fileRemarks, timeStart, "1", verState)
 	if err != nil {
 		return errors.New("Error on populating Fversion struct" + err.Error())
 	}
-	newConv, err := CreateNewConv(nodeID, FILE_EXT, destPath)
+	newConv, err := CreateNewConv(nodeID, fileExt, destPath)
 	if err != nil {
 		return errors.New("Error on populating Convqueue struct" + err.Error())
 	}
 	//Copy the file to destination
-	err = CopyFile(FILE_NAME, destPath)
+	err = CopyFile(fileName, destPath)
 	if err != nil {
 		return errors.New("Error on Copy File " + err.Error())
 	}
@@ -306,7 +312,7 @@ func CreateNewConv(nodeID int, fileExt string, destPath string) (Convqueue, erro
 		ConvType: "PDF",
 		FExt:     fileExt,
 		FFulPath: destPath,
-		INSDate:  time.Now().Format(DATE_AND_TIME),
+		INSDate:  time.Now().Format(dateAndTime),
 		Priority: 1,
 	}, nil
 }

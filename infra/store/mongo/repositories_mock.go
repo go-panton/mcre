@@ -6,6 +6,7 @@ type mockUserRepository struct {
 	UserArray []model.User
 }
 
+//NewMockUserRepository return a mock userRepository for testing purpose
 func NewMockUserRepository() model.UserRepository {
 	return &mockUserRepository{}
 }
