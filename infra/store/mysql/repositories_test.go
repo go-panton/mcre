@@ -18,7 +18,7 @@ func TestMySQL(t *testing.T) {
 
 	result, err := NewUser(db).Find("test")
 	if err != nil || result == nil {
-		fmt.Errorf("No result from database %v", err)
+		t.Errorf("No result from database %v", err)
 	}
 	fmt.Println(result)
 }
