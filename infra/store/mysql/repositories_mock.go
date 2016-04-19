@@ -3,28 +3,28 @@ package mysql
 import (
 	"errors"
 
-	"github.com/go-panton/mcre/id/model"
-	"github.com/go-panton/mcre/users/model"
+	id "github.com/go-panton/mcre/id/model"
+	user "github.com/go-panton/mcre/users/model"
 )
 
 type mockUserRepository struct {
-	UserArray []models.User
+	UserArray []user.User
 }
 
 type mockSeqRepository struct {
 }
 
-func NewMockUserRepository() models.UserRepository {
+func NewMockUserRepository() user.UserRepository {
 	return &mockUserRepository{}
 }
 
-func NewMockSeqRepository() model.SeqRepository {
+func NewMockSeqRepository() id.SeqRepository {
 	return &mockSeqRepository{}
 }
 
-func (m *mockUserRepository) Find(username string) (*models.User, error) {
+func (m *mockUserRepository) Find(username string) (*user.User, error) {
 	if username == "alex" {
-		return &models.User{Username: "alex", Password: "root"}, nil
+		return &user.User{Username: "alex", Password: "root"}, nil
 	}
 	return nil, nil
 }
@@ -33,14 +33,14 @@ func (m *mockUserRepository) Insert(username, password string) error {
 	return nil
 }
 
-func (m *mockUserRepository) Verify(username, password string) (*models.User, error) {
+func (m *mockUserRepository) Verify(username, password string) (*user.User, error) {
 	if username == "alex" && password == "root" {
-		return &models.User{Username: "alex", Password: "root"}, nil
+		return &user.User{Username: "alex", Password: "root"}, nil
 	}
 	return nil, errors.New("Invalid User")
 }
 
-func (m *mockSeqRepository) Get(query string) (int, error) {
+func (m *mockSeqRepository) Find(query string) (int, error) {
 	if query == "" {
 		return 0, errors.New("The query string is empty.")
 	} else if query == "NODE" {

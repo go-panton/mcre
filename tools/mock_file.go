@@ -134,7 +134,7 @@ func mockInsertFile() error {
 	seq := mysql.NewSeq(seqDatabase)
 
 	//Generate ID for New File
-	fileID, err := IDGenerator("FILENAME")
+	fileID, err := seq.Find("FILENAME")
 	if err != nil {
 		return errors.New("Error on IDGenerator for Filename " + err.Error())
 	}
@@ -146,7 +146,7 @@ func mockInsertFile() error {
 	var fgName = strconv.Itoa(fileID) + FILE_EXT
 	var destPath = STORAGE_FOLDER + fgName
 
-	nodeID, err := IDGenerator("NODE") //Generate a new ID for Node
+	nodeID, err := seq.Find("NODE") //Generate a new ID for Node
 	if err != nil {
 		return errors.New("Error on IDGenerator for Node " + err.Error())
 	}
@@ -200,11 +200,11 @@ func mockInsertFile() error {
 	}
 
 	//now update the seq table's value after the file has been successfully inserted
-	err = Update("FILE", fileID)
+	err = seq.Update("FILE", fileID)
 	if err != nil {
 		return errors.New("Error on Update File Value " + err.Error())
 	}
-	err = Update("NODE", nodeID)
+	err = seq.Update("NODE", nodeID)
 	if err != nil {
 		return errors.New("Error on Update Node Value " + err.Error())
 	}

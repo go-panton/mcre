@@ -7,8 +7,9 @@ import (
 
 	"errors"
 
-	"github.com/go-panton/mcre/id/model"
-	"github.com/go-panton/mcre/users/model"
+	id "github.com/go-panton/mcre/id/model"
+	user "github.com/go-panton/mcre/users/model"
+	//mysql driver
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -37,11 +38,11 @@ func ConnectDatabase(connString string) *sql.DB {
 	return db
 }
 
-func NewUser(db *sql.DB) models.UserRepository {
+func NewUser(db *sql.DB) user.UserRepository {
 	return &userRepository{db}
 }
 
-func NewSeq(db *sql.DB) model.SeqRepository {
+func NewSeq(db *sql.DB) id.SeqRepository {
 	return &seqRepository{db}
 }
 
@@ -59,7 +60,7 @@ func (r *userRepository) Insert(username, password string) error {
 	return nil
 }
 
-func (r *userRepository) Find(username string) (*models.User, error) {
+func (r *userRepository) Find(username string) (*user.User, error) {
 	var resultName, resultPassword string
 	err := r.db.QueryRow("SELECT * FROM user WHERE username=?", username).Scan(&resultName, &resultPassword)
 	switch {
@@ -68,11 +69,11 @@ func (r *userRepository) Find(username string) (*models.User, error) {
 	case err != nil:
 		return nil, err
 	default:
-		return &models.User{resultName, resultPassword}, nil
+		return &user.User{Username: resultName, Password: resultPassword}, nil
 	}
 }
 
-func (r *userRepository) Verify(username, password string) (*models.User, error) {
+func (r *userRepository) Verify(username, password string) (*user.User, error) {
 	var resultName, resultPassword string
 	err := r.db.QueryRow("SELECT * FROM user WHERE username=? AND password=?").Scan(&resultName, &resultPassword)
 	switch {
@@ -81,11 +82,11 @@ func (r *userRepository) Verify(username, password string) (*models.User, error)
 	case err != nil:
 		return nil, err
 	default:
-		return &models.User{resultName, password}, nil
+		return &user.User{Username: resultName, Password: password}, nil
 	}
 }
 
-func (r *seqRepository) Get(key string) (int, error) {
+func (r *seqRepository) Find(key string) (int, error) {
 	if key == "" {
 		return 0, errors.New("The key is empty.")
 	}

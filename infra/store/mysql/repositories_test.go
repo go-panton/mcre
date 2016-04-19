@@ -11,14 +11,14 @@ import (
 func TestMySQL(t *testing.T) {
 	db, err := sql.Open("mysql", "root:root123@/go_panton")
 	if err != nil {
-		fmt.Println("Error: %v", err)
+		fmt.Printf("Error: %v", err)
 	}
 
 	NewUser(db).Insert("test", "random")
 
 	result, err := NewUser(db).Find("test")
 	if err != nil || result == nil {
-		fmt.Errorf("No result from database")
+		fmt.Errorf("No result from database %v", err)
 	}
 	fmt.Println(result)
 }
