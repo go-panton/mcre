@@ -1,6 +1,10 @@
 package tools
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/go-panton/mcre/infra/store/mysql"
+)
 
 type TestCase struct {
 	TestData string
@@ -15,7 +19,8 @@ func TestKeygen(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		value, _ := IDGenerator(test.TestData)
+		seq := mysql.NewMockSeqRepository()
+		value, _ := IDGenerator(seq, test.TestData)
 		if value != test.Expected {
 			t.Errorf("Want: %v, Got: %v", test.Expected, value)
 		}

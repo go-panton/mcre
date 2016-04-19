@@ -1,28 +1,29 @@
 package tools
 
 import (
-	"github.com/go-panton/mcre/infra/store/mysql"
+	"github.com/go-panton/mcre/id/model"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func IDGenerator(query string) (int, error) {
-	seq := mysql.NewSeq(mysql.ConnectDatabase("root:root123@/ptd_new"))
-
-	//seq := mysql.NewMockSeqRepository()
-
+//IDGenerator get the value from table based on query, increment it by 1(indicating a new number)
+//and return the new ID
+func IDGenerator(seq model.SeqRepository, query string) (int, error) {
 	//query from database
 	val, err := seq.Get(query)
 	if err != nil {
 		return 0, err
 	}
 
-	nextNumber := val + 1
+	return val + 1, nil
+}
 
+//UpdateValue update the ID back to table to keep track of the ID
+func UpdateValue(seq model.SeqRepository, query string, value int) error {
 	//update the value
 	//TODO: make it thread safe
-	err1 := seq.Update(nextNumber, query)
-	if err1 != nil {
-		return 0, err1
+	err := seq.Update(query, value)
+	if err != nil {
+		return err
 	}
-	return nextNumber, nil
+	return nil
 }
