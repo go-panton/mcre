@@ -17,6 +17,8 @@ var updateString string
 var deleteString string
 
 type NodeRepository interface {
+
+	//
 	Create(Node) error
 	Update(Node) error
 	Delete(int) error

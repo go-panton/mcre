@@ -7,8 +7,10 @@ import (
 
 	"errors"
 
-	"github.com/go-panton/mcre/id/model"
-	"github.com/go-panton/mcre/users/model"
+	id "github.com/go-panton/mcre/id/model"
+	node "github.com/go-panton/mcre/node/model"
+	users "github.com/go-panton/mcre/users/model"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -17,6 +19,10 @@ type userRepository struct {
 }
 
 type seqRepository struct {
+	db *sql.DB
+}
+
+type nodeRepository struct {
 	db *sql.DB
 }
 
@@ -37,12 +43,16 @@ func ConnectDatabase(connString string) *sql.DB {
 	return db
 }
 
-func NewUser(db *sql.DB) models.UserRepository {
+func NewUser(db *sql.DB) users.UserRepository {
 	return &userRepository{db}
 }
 
-func NewSeq(db *sql.DB) model.SeqRepository {
+func NewSeq(db *sql.DB) id.SeqRepository {
 	return &seqRepository{db}
+}
+
+func NewNode(db *sql.DB) node.NodeRepository {
+	return &nodeRepository{db}
 }
 
 func (r *userRepository) Insert(username, password string) error {
@@ -59,7 +69,7 @@ func (r *userRepository) Insert(username, password string) error {
 	return nil
 }
 
-func (r *userRepository) Find(username string) (*models.User, error) {
+func (r *userRepository) Find(username string) (*users.User, error) {
 	var resultName, resultPassword string
 	err := r.db.QueryRow("SELECT * FROM user WHERE username=?", username).Scan(&resultName, &resultPassword)
 	switch {
@@ -68,11 +78,11 @@ func (r *userRepository) Find(username string) (*models.User, error) {
 	case err != nil:
 		return nil, err
 	default:
-		return &models.User{resultName, resultPassword}, nil
+		return &users.User{resultName, resultPassword}, nil
 	}
 }
 
-func (r *userRepository) Verify(username, password string) (*models.User, error) {
+func (r *userRepository) Verify(username, password string) (*users.User, error) {
 	var resultName, resultPassword string
 	err := r.db.QueryRow("SELECT * FROM user WHERE username=? AND password=?").Scan(&resultName, &resultPassword)
 	switch {
@@ -81,7 +91,7 @@ func (r *userRepository) Verify(username, password string) (*models.User, error)
 	case err != nil:
 		return nil, err
 	default:
-		return &models.User{resultName, password}, nil
+		return &users.User{resultName, password}, nil
 	}
 }
 
@@ -118,5 +128,10 @@ func (r *seqRepository) Update(key string, value int) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (r *nodeRepository) Create(node node.Node) error {
+
 	return nil
 }
