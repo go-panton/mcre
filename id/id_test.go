@@ -8,7 +8,7 @@ import (
 	"github.com/go-panton/mcre/infra/store/mysql"
 )
 
-func TestGet(t *testing.T) {
+func TestFind(t *testing.T) {
 	var tests = []struct {
 		key  string
 		want int
@@ -21,7 +21,7 @@ func TestGet(t *testing.T) {
 	seq := mysql.NewMockSeqRepository()
 
 	for _, test := range tests {
-		value, _ := seq.Get(test.key)
+		value, _ := seq.Find(test.key)
 		if value != test.want {
 			t.Errorf("Want: %v, Got: %v", test.want, value)
 		}

@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-panton/mcre/infra/store/mongo"
 	"github.com/go-panton/mcre/users"
-	"github.com/go-panton/mcre/users/model"
 	"github.com/gorilla/mux"
 
 	"bytes"

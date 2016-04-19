@@ -13,11 +13,11 @@ type Service interface {
 	Login(username, password string) error
 }
 type service struct {
-	repo models.UserRepository
+	repo model.UserRepository
 }
 
 // NewService instantiates new user-service.
-func NewService(repo models.UserRepository) Service {
+func NewService(repo model.UserRepository) Service {
 	return &service{repo}
 }
 
