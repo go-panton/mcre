@@ -6,13 +6,14 @@ import (
 
 	"fmt"
 
-	"github.com/go-panton/mcre/users/model"
+	"github.com/go-panton/mcre/users/models"
 )
 
 type userRepository struct {
 	col *mgo.Collection
 }
 
+//ConnectDatabase return a collection based on dbname and colname provided
 func ConnectDatabase(dbName, colName string) *mgo.Collection {
 
 	session, err := mgo.Dial("localhost")
@@ -23,12 +24,13 @@ func ConnectDatabase(dbName, colName string) *mgo.Collection {
 	return session.DB(dbName).C(colName)
 }
 
-func NewUser(col *mgo.Collection) model.UserRepository {
+//NewUser return a userRepository based on mongo collection provided
+func NewUser(col *mgo.Collection) models.UserRepository {
 	return &userRepository{col}
 }
 
 func (r *userRepository) Insert(username, password string) error {
-	newUser := model.User{Username: username, Password: password}
+	newUser := models.User{Username: username, Password: password}
 
 	err := r.col.Insert(newUser)
 	if err != nil {
@@ -38,8 +40,8 @@ func (r *userRepository) Insert(username, password string) error {
 	return nil
 }
 
-func (r *userRepository) Find(username string) (*model.User, error) {
-	result := &model.User{}
+func (r *userRepository) Find(username string) (*models.User, error) {
+	result := &models.User{}
 	err := r.col.Find(bson.M{"username": username}).One(result)
 	if err != nil {
 		return nil, err

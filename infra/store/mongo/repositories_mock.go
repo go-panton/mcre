@@ -1,11 +1,12 @@
 package mongo
 
-import "github.com/go-panton/mcre/users/model"
+import "github.com/go-panton/mcre/users/models"
 
 type mockUserRepository struct {
 	UserArray []models.User
 }
 
+//NewMockUserRepository return a mock UserRepository for unit testing purpose
 func NewMockUserRepository() models.UserRepository {
 	return &mockUserRepository{}
 }
