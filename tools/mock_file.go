@@ -104,7 +104,7 @@ func mock_insert_file() error {
 		return err
 	}
 	//Increment by 1 indicate a new node created
-	nodeID += 1
+	nodeID++
 
 	fmt.Println("New Node ID: ", nodeID)
 
