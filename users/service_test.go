@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/go-panton/mcre/infra/store/mongo"
-	"github.com/go-panton/mcre/users/model"
+	"github.com/go-panton/mcre/users/models"
 )
 
 type testPair struct {
@@ -15,11 +15,11 @@ type testPair struct {
 }
 
 var tests = []testPair{
-	{models.User{"alex", ""}, BadRequestError{errors.New("The password is empty.")}},
-	{models.User{"", "root"}, BadRequestError{errors.New("The username is empty.")}},
-	{models.User{"", ""}, BadRequestError{errors.New("The username is empty.")}},
-	{models.User{"alex", "root"}, BadRequestError{errors.New("The username has already been taken.")}},
-	{models.User{"Rex", "Gear"}, BadRequestError{nil}},
+	{models.User{Username: "alex", Password: ""}, BadRequestError{errors.New("The password is empty.")}},
+	{models.User{Username: "", Password: "root"}, BadRequestError{errors.New("The username is empty.")}},
+	{models.User{Username: "", Password: ""}, BadRequestError{errors.New("The username is empty.")}},
+	{models.User{Username: "alex", Password: "root"}, BadRequestError{errors.New("The username has already been taken.")}},
+	{models.User{Username: "Rex", Password: "Gear"}, BadRequestError{nil}},
 }
 
 func TestSignUp(t *testing.T) {

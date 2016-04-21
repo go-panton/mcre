@@ -4,13 +4,12 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/go-panton/mcre/users/model"
+	"github.com/go-panton/mcre/users/models"
 )
 
 // Service is the interface of User API
 type Service interface {
 	SignUp(username, password string) error
-	Login(username, password string) error
 }
 type service struct {
 	repo models.UserRepository
@@ -37,21 +36,4 @@ func (svc *service) SignUp(username, password string) error {
 	}
 
 	return svc.repo.Insert(username, password)
-}
-
-func (svc *service) Login(username, password string) error {
-	if username == "" {
-		return errors.New("The username is missing or empty.")
-	} else if password == "" {
-		return errors.New("The password is missing or empty.")
-	}
-
-	verifyUser, err := svc.repo.Verify(username, password)
-	if err != nil && err != sql.ErrNoRows {
-		return errors.New(err.Error())
-	}
-	if verifyUser == nil {
-		return errors.New("No such user in database")
-	}
-	return nil
 }

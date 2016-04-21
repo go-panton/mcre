@@ -2,6 +2,7 @@ package users
 
 import "time"
 
+//BadRequestError store the error in the struct
 type BadRequestError struct {
 	Err error
 }
@@ -23,16 +24,7 @@ type SignUpResponse struct {
 	//SessionToken string    `json:"sessiontoken"`
 }
 
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type LoginResponse struct {
-	UserID      int    `json:"userid"`
-	TokenString string `json:"tokenString"`
-}
-
+//ErrorResponse stores the code and message of the error in the struct
 type ErrorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
