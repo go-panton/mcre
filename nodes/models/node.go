@@ -1,6 +1,6 @@
 package models
 
-//Node struct define the data taht will be store or retrieve from the database
+//Node struct define the data that will be store or retrieve from the database
 type Node struct {
 	NodeID    int
 	NodeBits  int
@@ -42,7 +42,8 @@ type NodeRepository interface {
 	// - no result
 	// - invalid query
 	Find(int) (Node, error)
-	// FindByDesc return the node based on the node description provided
+	// FindByDesc return slice of node based on the node description provided
+	// Returning a slice of node because there may be multiple node having same description
 	//
 	// Return error when:-
 	// - parameter is empty string
@@ -53,12 +54,12 @@ type NodeRepository interface {
 	// GetInsertStr return a sql string for insert based on node provided
 	//
 	// Return error when:-
-	// - Node provided has missing field
+	// - Node provided has missing field that are non nullable
 	GetInsertStr(Node) (string, error)
 	// GetUpdateStr return a sql string for update based on node provided
 	//
 	// Return error when:-
-	// - Node provided has missing field
+	// - Node provided has missing field that are non nullable
 	GetUpdateStr(Node) (string, error)
 	// GetDeleteStr return a sql string for delete based on node provided
 	//
