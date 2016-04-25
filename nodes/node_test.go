@@ -122,9 +122,10 @@ func TestFindByDesc(t *testing.T) {
 			if err.Error() != test.Want.Error() {
 				t.Errorf("Got: %v,Want: %v \n", err.Error(), test.Want.Error())
 			}
-		}
-		for _, node := range res {
-			fmt.Printf("Result slice: %#v", node)
+		} else {
+			for _, node := range res {
+				fmt.Printf("Result slice: %#v", node)
+			}
 		}
 	}
 }
@@ -150,8 +151,9 @@ func TestGetInsertStr(t *testing.T) {
 			if err.Error() != test.Want.Error() {
 				t.Errorf("Got: %v, Want: %v", err.Error(), test.Want.Error())
 			}
+		} else {
+			fmt.Printf("Result string Insert: %v \n", res)
 		}
-		fmt.Printf("Result string Insert: %v \n", res)
 	}
 }
 
@@ -165,10 +167,9 @@ func TestGetUpdateStr(t *testing.T) {
 		{models.Node{NodeID: 23232, NodeDesc: "testName", NodeDT: time.Now().Format("2006-01-02"), NodeGID: 424, NodeType: "FILE", NodeUID: 1}, nil},
 		{models.Node{NodeID: 33333, NodeDesc: "testName", NodeDT: time.Now().Format("2006-01-02"), NodeGID: 242, NodeType: "FILE"}, errors.New("Parameter cannot be empty")},
 		{models.Node{NodeDesc: "testName1", NodeDT: time.Now().Format("2006-01-02"), NodeGID: 242, NodeType: "FILE", NodeUID: 3212}, errors.New("Parameter cannot be empty")},
-		{models.Node{NodeID: 23232, NodeDT: time.Now().Format("2006-01-02"), NodeGID: 424, NodeType: "FILE", NodeUID: 1}, errors.New("Parameter cannot be empty")},
-		{models.Node{NodeID: 23232, NodeDesc: "testName", NodeGID: 424, NodeType: "FILE", NodeUID: 1}, errors.New("Parameter cannot be empty")},
-		{models.Node{NodeID: 23232, NodeDesc: "testName", NodeGID: 424, NodeType: "FILE", NodeUID: 1}, errors.New("Parameter cannot be empty")},
 		{models.Node{NodeID: 23232, NodeDesc: "testName", NodeDT: time.Now().Format("2006-01-02"), NodeGID: 424, NodeUID: 1}, errors.New("Parameter cannot be empty")},
+		{models.Node{NodeID: 23232, NodeDesc: "testName", NodeDT: time.Now().Format("2006-01-02"), NodeType: "FILE", NodeUID: 1}, errors.New("Parameter cannot be empty")},
+		{models.Node{NodeID: 23232, NodeDT: time.Now().Format("2006-01-02"), NodeGID: 424, NodeType: "FILE", NodeUID: 1}, errors.New("Parameter cannot be empty")},
 	}
 	for _, test := range tests {
 		res, err := nodes.GetUpdateStr(test.Node)
@@ -176,8 +177,9 @@ func TestGetUpdateStr(t *testing.T) {
 			if err.Error() != test.Want.Error() {
 				t.Errorf("Got: %v, Want: %v", err.Error(), test.Want.Error())
 			}
+		} else {
+			fmt.Printf("Result string Update: %v \n", res)
 		}
-		fmt.Printf("Result string Update: %v \n", res)
 	}
 }
 
@@ -197,7 +199,8 @@ func TestGetDeleteStr(t *testing.T) {
 			if err.Error() != test.Want.Error() {
 				t.Errorf("Got: %v, Want: %v", err.Error(), test.Want.Error())
 			}
+		} else {
+			fmt.Printf("Result string Delete: %v \n", res)
 		}
-		fmt.Printf("Result string Delete: %v \n", res)
 	}
 }
