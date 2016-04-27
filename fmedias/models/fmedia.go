@@ -1,5 +1,7 @@
 package models
 
+import "errors"
+
 //Fmedia struct define the data that stores in the database
 type Fmedia struct {
 	NodeID   int
@@ -63,6 +65,38 @@ type FmediaRepository interface {
 	// GetDeleteStr return a sql string for delete based on fmedia provided
 	//
 	// Return error when:-
-	// - NodeID is 0
+	// - NodeID is 0 or not provided
 	GetDeleteStr(int) (string, error)
+
+	// CreateTx make a transaction to commit all insert query on single commit and
+	// have the ability to rollback if error happen
+	//
+	// Return error when:-
+	// - failed to create a transaction instance
+	// - failed to create preapred statement
+	// - failed to execute a statement
+	// - transaction rollback
+	// - failed to commit the changes into database
+	//
+	CreateTx(string, string, string, string, string) error
+}
+
+//NewFmedia return a Fmedia struct based on parameters passed in
+func NewFmedia(nodeID int, fDesc string, fgName string, fExt string, fFulpath string, foName string, fSize int) (Fmedia, error) {
+	if nodeID == 0 || fDesc == "" || fgName == "" || fExt == "" || fFulpath == "" || foName == "" || fSize == 0 {
+		return Fmedia{}, errors.New("Parameters cannot be empty")
+	}
+
+	return Fmedia{
+		NodeID:   nodeID,
+		FDesc:    fDesc,
+		FGName:   fgName,
+		FExt:     fExt,
+		FFulPath: fFulpath,
+		FOName:   foName,
+		FSize:    fSize,
+		FStatus:  1,
+		FType:    1,
+		FRemark:  "",
+	}, nil
 }

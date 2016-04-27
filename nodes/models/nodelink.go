@@ -1,5 +1,7 @@
 package models
 
+import "errors"
+
 //Nodelink struct defines the data that get stored in database
 type Nodelink struct {
 	LinkCNodeID int
@@ -46,8 +48,27 @@ type NodelinkRepository interface {
 	// - no result
 	// - invalid query
 	FindExact(int, int, string) (Nodelink, error)
-
+	// GetInsertStr return an insert statement that can later be used as a transaction's prepared statement based on parameters provided
+	//
+	// Return error when:-
+	// - Parameters are missing or empty
 	GetInsertStr(Nodelink) (string, error)
-
+	// GetDeleteStr return a delete statement that can later be used as a transaction's prepared statement based on childNodeID and parentNodeID provided
+	//
+	// Return error when:-
+	// - Parameters are missing or empty
 	GetDeleteStr(int, int) (string, error)
+}
+
+//NewNodelink return a new Nodelink struct based on paramter input
+func NewNodelink(childNodeID int) (Nodelink, error) {
+	if childNodeID == 0 {
+		return Nodelink{}, errors.New("Parameter cannot be empty")
+	}
+
+	return Nodelink{
+		LinkCNodeID: childNodeID,
+		LinkPNodeID: 200004,
+		LinkType:    "FILE",
+	}, nil
 }

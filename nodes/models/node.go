@@ -1,5 +1,7 @@
 package models
 
+import "errors"
+
 //Node struct define the data that will be store or retrieve from the database
 type Node struct {
 	NodeID    int
@@ -66,4 +68,20 @@ type NodeRepository interface {
 	// Return error when:-
 	// - NodeID is 0
 	GetDeleteStr(int) (string, error)
+}
+
+//NewNode returns a new Node based on parameters passed in
+func NewNode(nodeID int, fileName string, fileDT string) (Node, error) {
+	if nodeID == 0 || fileName == "" || fileDT == "" {
+		return Node{}, errors.New("Parameters cannot be empty")
+	}
+
+	return Node{
+		NodeID:   nodeID,
+		NodeDesc: fileName,
+		NodeDT:   fileDT,
+		NodeGID:  200001,
+		NodeType: "FILE",
+		NodeUID:  1,
+	}, nil
 }
