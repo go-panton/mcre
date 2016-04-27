@@ -42,6 +42,10 @@ type fverinfoRepository struct {
 	db *sqlx.DB
 }
 
+type convqueueRepository struct {
+	db *sqlx.DB
+}
+
 //GetConnString returns connection string based on username, password and databaseName provided
 func GetConnString(username, password, databaseName string) string {
 	connString := username + ":" + password + "@/" + databaseName
@@ -89,6 +93,11 @@ func NewNodeLink(db *sqlx.DB) nodes.NodelinkRepository {
 //NewFverinfo returns a FverinfoRepository based on database connection provided
 func NewFverinfo(db *sqlx.DB) fmedias.FverinfoRepository {
 	return &fverinfoRepository{db}
+}
+
+//NewConvqueue returns a ConvqueueRepository based on database connection provided
+func NewConvqueue(db *sqlx.DB) fmedias.ConvqueueRepository {
+	return &convqueueRepository{db}
 }
 
 func (r *userRepository) Insert(username, password string) error {
@@ -673,4 +682,120 @@ func (r *fverinfoRepository) GetDeleteStr(nodeID int) (string, error) {
 	deleteStr := "DELETE fverinfo WHERE nodeid=" + strconv.Itoa(nodeID)
 
 	return deleteStr, nil
+}
+
+func (r *convqueueRepository) Insert(convqueue fmedias.Convqueue) error {
+	if convqueue.NodeID == 0 || convqueue.Convtype == "" || convqueue.FExt == "" || convqueue.FFulpath == "" || convqueue.InsDate == "" || convqueue.Priority == 0 {
+		return errors.New("Parameter cannot be empty")
+	}
+	stmt, err := r.db.Prepare("INSERT convqueue SET nodeid=?,convtype=?,fext=?,ffulpath=?,insdate=?,priority=?")
+	if err != nil {
+		return errors.New("Error when preparing convqueue prepared statement: " + err.Error())
+	}
+	_, err = stmt.Exec(convqueue.NodeID, convqueue.Convtype, convqueue.FExt, convqueue.FFulpath, convqueue.InsDate, convqueue.Priority)
+	if err != nil {
+		return errors.New("Error exeucting convqueue statement: " + err.Error())
+	}
+	return nil
+}
+
+func (r *convqueueRepository) Delete(nodeID int) error {
+	if nodeID == 0 {
+		return errors.New("Node ID cannot be empty or 0")
+	}
+	stmt, err := r.db.Prepare("DELETE FROM convqueue WHERE nodeid=?")
+	if err != nil {
+		return errors.New("Error preparing convqueue delete statement")
+	}
+	_, err = stmt.Exec(nodeID)
+	if err != nil {
+		return errors.New("Error executing convqueue delete statement")
+	}
+	return nil
+}
+
+func (r *convqueueRepository) GetInsertStr(convqueue fmedias.Convqueue) (string, error) {
+	if convqueue.NodeID == 0 || convqueue.Convtype == "" || convqueue.FExt == "" || convqueue.FFulpath == "" || convqueue.InsDate == "" || convqueue.Priority == 0 {
+		return "", errors.New("Parameter cannot be empty")
+	}
+	insertStr := "INSERT convqueue SET nodeid=" + strconv.Itoa(convqueue.NodeID) +
+		",convtype=" + convqueue.Convtype +
+		",fext=" + convqueue.FExt +
+		",ffulpath=" + convqueue.FFulpath +
+		",insdate=" + convqueue.InsDate +
+		",priority=" + strconv.Itoa(convqueue.Priority)
+
+	return insertStr, nil
+}
+
+func (r *convqueueRepository) GetDeleteStr(nodeID int) (string, error) {
+	if nodeID == 0 {
+		return "", errors.New("Node ID cannot be empty or 0")
+	}
+	deleteStr := "DELETE FROM convqueue WHERE nodeid=" + strconv.Itoa(nodeID)
+
+	return deleteStr, nil
+}
+
+//CreateTx instantiate a transaction to commit all database insert query at once
+func (r *fmediaRepository) CreateTx(nodeStr, fmediaStr, nlStr, fverinfoStr, convStr string) error {
+	if nodeStr == "" || fmediaStr == "" || nlStr == "" || fverinfoStr == "" || convStr == "" {
+		return errors.New("Parameter cannot be empty")
+	}
+
+	tx, err := r.db.Begin()
+	if err != nil {
+		return errors.New("Error starting a transaction: " + err.Error())
+	}
+	nodeStmt, err := tx.Prepare(nodeStr)
+	if err != nil {
+		return errors.New("Error preparing statement: " + err.Error())
+	}
+	fmediaStmt, err := tx.Prepare(fmediaStr)
+	if err != nil {
+		return errors.New("Error preparing statement: " + err.Error())
+	}
+	nlStmt, err := tx.Prepare(nlStr)
+	if err != nil {
+		return errors.New("Error preparing statement: " + err.Error())
+	}
+	fvStmt, err := tx.Prepare(fverinfoStr)
+	if err != nil {
+		return errors.New("Error preparing statement: " + err.Error())
+	}
+	convStmt, err := tx.Prepare(convStr)
+	if err != nil {
+		return errors.New("Error preparing statement: " + err.Error())
+	}
+	_, err = nodeStmt.Exec()
+	if err != nil {
+		tx.Rollback()
+		return errors.New("Rolled-back due to: " + err.Error())
+	}
+	_, err = fmediaStmt.Exec()
+	if err != nil {
+		tx.Rollback()
+		return errors.New("Rolled-back due to: " + err.Error())
+	}
+	_, err = nlStmt.Exec()
+	if err != nil {
+		tx.Rollback()
+		return errors.New("Rolled-back due to: " + err.Error())
+	}
+	_, err = fvStmt.Exec()
+	if err != nil {
+		tx.Rollback()
+		return errors.New("Rolled-back due to: " + err.Error())
+	}
+	_, err = convStmt.Exec()
+	if err != nil {
+		tx.Rollback()
+		return errors.New("Rolled-back due to: " + err.Error())
+	}
+	err = tx.Commit()
+	if err != nil {
+		return errors.New("Error commit: " + err.Error())
+	}
+
+	return nil
 }

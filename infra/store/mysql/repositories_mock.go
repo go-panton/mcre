@@ -22,6 +22,8 @@ type mockFverinfoRepository struct{}
 
 type mockNodelinkRepository struct{}
 
+type mockConvqueueRepository struct{}
+
 //NewMockUserRepository return a mock UserRepository for testing purpose
 func NewMockUserRepository() users.UserRepository {
 	return &mockUserRepository{}
@@ -50,6 +52,11 @@ func NewMockFverinfoRepository() fmedias.FverinfoRepository {
 //NewMockNodelinkRepository return a mock NodelinkRepository for testing purpose
 func NewMockNodelinkRepository() nodes.NodelinkRepository {
 	return &mockNodelinkRepository{}
+}
+
+//NewMockConvqueueRepository return a mock ConvqueueRepository for testing purpose
+func NewMockConvqueueRepository() fmedias.ConvqueueRepository {
+	return &mockConvqueueRepository{}
 }
 
 func (m *mockUserRepository) Find(username string) (*users.User, error) {
@@ -246,6 +253,13 @@ func (m *mockFmediaRepository) GetDeleteStr(nodeID int) (string, error) {
 	return deleteStr, nil
 }
 
+func (m *mockFmediaRepository) CreateTx(nodeStr, fmStr, nlStr, fvStr, convStr string) error {
+	if nodeStr == "" || fmStr == "" || nlStr == "" || fvStr == "" || convStr == "" {
+		return errors.New("Parameter cannot be empty")
+	}
+	return nil
+}
+
 func (m *mockFverinfoRepository) Insert(fverinfo fmedias.Fverinfo) error {
 	if fverinfo.NodeID == 0 || fverinfo.StartDate == "" || fverinfo.Version == "" || fverinfo.VerState == 0 {
 		return errors.New("Parameter cannot be empty")
@@ -363,6 +377,43 @@ func (m *mockNodelinkRepository) GetDeleteStr(childNodeID, parentNodeID int) (st
 	}
 	deleteStr := "DELETE FROM nodelink WHERE linkcnodeid=" + strconv.Itoa(childNodeID) +
 		",linkpnodeid=" + strconv.Itoa(parentNodeID)
+
+	return deleteStr, nil
+}
+
+func (m *mockConvqueueRepository) Insert(convqueue fmedias.Convqueue) error {
+	if convqueue.NodeID == 0 || convqueue.Convtype == "" || convqueue.FExt == "" || convqueue.FFulpath == "" || convqueue.InsDate == "" || convqueue.Priority == 0 {
+		return errors.New("Parameter cannot be empty")
+	}
+	return nil
+}
+
+func (m *mockConvqueueRepository) Delete(nodeID int) error {
+	if nodeID == 0 {
+		return errors.New("Node ID cannot be empty or 0")
+	}
+	return nil
+}
+
+func (m *mockConvqueueRepository) GetInsertStr(convqueue fmedias.Convqueue) (string, error) {
+	if convqueue.NodeID == 0 || convqueue.Convtype == "" || convqueue.FExt == "" || convqueue.FFulpath == "" || convqueue.InsDate == "" || convqueue.Priority == 0 {
+		return "", errors.New("Parameter cannot be empty")
+	}
+	insertStr := "INSERT convqueue SET nodeid=" + strconv.Itoa(convqueue.NodeID) +
+		",convtype=" + convqueue.Convtype +
+		",fext=" + convqueue.FExt +
+		",ffulpath=" + convqueue.FFulpath +
+		",insdate=" + convqueue.InsDate +
+		",priority=" + strconv.Itoa(convqueue.Priority)
+
+	return insertStr, nil
+}
+
+func (m *mockConvqueueRepository) GetDeleteStr(nodeID int) (string, error) {
+	if nodeID == 0 {
+		return "", errors.New("Node ID cannot be empty or 0")
+	}
+	deleteStr := "DELETE FROM convqueue WHERE nodeid=" + strconv.Itoa(nodeID)
 
 	return deleteStr, nil
 }
