@@ -1,6 +1,7 @@
 package files
 
 import (
+	"errors"
 	"io"
 	"os"
 	"path"
@@ -20,7 +21,7 @@ type BadRequestError error
 type Service interface {
 	//Download(simple) opens and reads file based on fileid
 	Download(fileid string) io.Reader
-	Create(file *os.File) error
+	Create(string) error
 }
 
 // NewService instantiates new download-service.
@@ -41,9 +42,12 @@ func (svc *service) Download(fileid string) io.Reader {
 	return strings.NewReader("This is your requested file content.")
 }
 
-func (svc *service) Create(fp *os.File) error {
+func (svc *service) Create(filename string) error {
+	if filename == "" {
+		return errors.New("Filename passing in is empty!")
+	}
 
-	nodeID, err := svc.seq.Find("NODEID")
+	nodeID, err := svc.seq.Find("NODE")
 	if err != nil {
 		return err
 	}
@@ -52,23 +56,29 @@ func (svc *service) Create(fp *os.File) error {
 		return err
 	}
 
+	//open the file to get the file pointer
+	fp, err := os.Open(filename)
+
+	// although it is not the best to use defer for close because the file can be close much earlier
+	// but we have to consider when error happen we want to make sure the close function always get called
+	defer fp.Close()
+
 	//1st get file name
 	fi, err := fp.Stat()
 	if err != nil {
 		return err
 	}
 
-	fileName := fi.Name()
 	fileSize := fi.Size()
 	startDate := fi.ModTime()
 	fileDT := fi.ModTime().Format("2006-01-02") //convert to string and designated format
 
 	//Get extension of fileServer
-	fileExt := path.Ext(fileName)
+	fileExt := path.Ext(filename)
 
-	newNode, err := nodes.NewNode(nodeID, fileName, fileDT)
+	newNode, err := nodes.NewNode(nodeID, filename, fileDT)
 	if err != nil {
-		return err
+		return errors.New("Node creation error: " + err.Error())
 	}
 
 	//Copy File to designated storage folder
@@ -79,6 +89,9 @@ func (svc *service) Create(fp *os.File) error {
 	dest := storageFolder + newFileName
 
 	destFile, err := os.Create(dest)
+
+	defer destFile.Close()
+
 	if err != nil {
 		return err
 	}
@@ -87,10 +100,11 @@ func (svc *service) Create(fp *os.File) error {
 	if err != nil {
 		return err
 	}
-	destFile.Close()
+
+	//close here for more effective memory handling instead of waiting for defer to close the fp
 
 	//Create New Fmedia record
-	newFmedia, err := fmedias.NewFmedia(nodeID, fileName, newFileName, fileExt, storageFolder, fileName, int(fileSize))
+	newFmedia, err := fmedias.NewFmedia(nodeID, filename, newFileName, fileExt, storageFolder, filename, int(fileSize))
 	if err != nil {
 		return err
 	}
