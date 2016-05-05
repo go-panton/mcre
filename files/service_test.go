@@ -29,12 +29,13 @@ func TestCreate(t *testing.T) {
 	fverinfos := mysql.NewMockFverinfoRepository()
 	nls := mysql.NewMockNodelinkRepository()
 	convs := mysql.NewMockConvqueueRepository()
+	fmps := mysql.NewMockFmpolicyRepository()
 
-	svc := NewService(seqs, nodes, fmedias, nls, fverinfos, convs)
+	svc := NewService(seqs, nodes, fmedias, nls, fverinfos, convs, fmps)
 
 	filename := newFile.Name()
 
-	// close the file because the service does not need the file pointer now
+	// close the file because the service does not need the file pointer anymore
 	err = newFile.Close()
 	if err != nil {
 		t.Errorf("Error closing file: %v", err.Error())
@@ -49,5 +50,6 @@ func TestCreate(t *testing.T) {
 	err = os.Remove(tempDir + "\\test.txt")
 	if err != nil {
 		t.Errorf("Error removing test file: %v", err.Error())
+		t.FailNow() // can't remove just fail the test straight
 	}
 }

@@ -25,17 +25,18 @@ type Service interface {
 }
 
 // NewService instantiates new download-service.
-func NewService(seq seqs.SeqRepository, node nodes.NodeRepository, fmedia fmedias.FmediaRepository, nodelink nodes.NodelinkRepository, fverinfo fmedias.FverinfoRepository, convqueue fmedias.ConvqueueRepository) Service {
-	return &service{seq, node, fmedia, nodelink, fverinfo, convqueue}
+func NewService(seqR seqs.SeqRepository, nodeR nodes.NodeRepository, fmediaR fmedias.FmediaRepository, nodelinkR nodes.NodelinkRepository, fverinfoR fmedias.FverinfoRepository, convqueueR fmedias.ConvqueueRepository, fmpolicyR fmedias.FmpolicyRepository) Service {
+	return &service{seqR, nodeR, fmediaR, nodelinkR, fverinfoR, convqueueR, fmpolicyR}
 }
 
 type service struct {
-	seq       seqs.SeqRepository
-	node      nodes.NodeRepository
-	fmedia    fmedias.FmediaRepository
-	nodelink  nodes.NodelinkRepository
-	fverinfo  fmedias.FverinfoRepository
-	convqueue fmedias.ConvqueueRepository
+	seqR       seqs.SeqRepository
+	nodeR      nodes.NodeRepository
+	fmediaR    fmedias.FmediaRepository
+	nodelinkR  nodes.NodelinkRepository
+	fverinfoR  fmedias.FverinfoRepository
+	convqueueR fmedias.ConvqueueRepository
+	fmpolicyR  fmedias.FmpolicyRepository
 }
 
 func (svc *service) Download(fileid string) io.Reader {
@@ -47,11 +48,11 @@ func (svc *service) Create(filename string) error {
 		return errors.New("Filename passing in is empty!")
 	}
 
-	nodeID, err := svc.seq.Find("NODE")
+	nodeID, err := svc.seqR.Find("NODE")
 	if err != nil {
 		return err
 	}
-	fileID, err := svc.seq.Find("FILENAME")
+	fileID, err := svc.seqR.Find("FILENAME")
 	if err != nil {
 		return err
 	}
@@ -84,12 +85,17 @@ func (svc *service) Create(filename string) error {
 	//Copy File to designated storage folder
 	const storageFolder = "D:\\PantonSys\\PTD\\ISOStorage\\1\\"
 
+	const folderNodeID = 200004
+
+	const linkType = "FILE"
+
 	newFileName := strconv.Itoa(fileID) + fileExt
 
 	dest := storageFolder + newFileName
 
 	destFile, err := os.Create(dest)
 
+	// use defer instead of manually closing it due to cases where service failed halfway
 	defer destFile.Close()
 
 	if err != nil {
@@ -101,8 +107,6 @@ func (svc *service) Create(filename string) error {
 		return err
 	}
 
-	//close here for more effective memory handling instead of waiting for defer to close the fp
-
 	//Create New Fmedia record
 	newFmedia, err := fmedias.NewFmedia(nodeID, filename, newFileName, fileExt, storageFolder, filename, int(fileSize))
 	if err != nil {
@@ -110,9 +114,29 @@ func (svc *service) Create(filename string) error {
 	}
 
 	//Create Nodelink
-	newNodelink, err := nodes.NewNodelink(nodeID)
+	//Hardcoded the folder nodeID to 200004 and link type to FILE
+	newNodelink, err := nodes.NewNodelink(nodeID, folderNodeID, linkType)
 	if err != nil {
 		return err
+	}
+
+	//Find folder's fmpolicy 1st
+	folderSec, err := svc.fmpolicyR.FindUsingNodeID(folderNodeID)
+
+	//slice of fmp insert string
+	var fmpStrSlice []string
+
+	//Create new fmpolicy for every instance
+	for _, fs := range folderSec {
+		newFmp, e := fmedias.NewFmpolicy(fs.FmpDownload, fs.FmpRevise, fs.FmpView, fs.FmpUGID, fs.FmpUGType, nodeID)
+		if e != nil {
+			return e
+		}
+		fmpStr, e := svc.fmpolicyR.GetInsertStr(newFmp)
+		if e != nil {
+			return e
+		}
+		fmpStrSlice = append(fmpStrSlice, fmpStr)
 	}
 
 	//Create Fverinfo, treat it as first version since no possible way to know what version is that file
@@ -132,29 +156,29 @@ func (svc *service) Create(filename string) error {
 		return err
 	}
 
-	//Should I make a trasaction instead....
-	nodeStr, err := svc.node.GetInsertStr(newNode)
+	// Gather all insert statement for transaction
+	nodeStr, err := svc.nodeR.GetInsertStr(newNode)
 	if err != nil {
 		return err
 	}
-	fmediaStr, err := svc.fmedia.GetInsertStr(newFmedia)
+	fmediaStr, err := svc.fmediaR.GetInsertStr(newFmedia)
 	if err != nil {
 		return err
 	}
-	nlStr, err := svc.nodelink.GetInsertStr(newNodelink)
+	nlStr, err := svc.nodelinkR.GetInsertStr(newNodelink)
 	if err != nil {
 		return err
 	}
-	fverStr, err := svc.fverinfo.GetInsertStr(newFverinfo)
+	fverStr, err := svc.fverinfoR.GetInsertStr(newFverinfo)
 	if err != nil {
 		return err
 	}
-	convStr, err := svc.convqueue.GetInsertStr(newConvqueue)
+	convStr, err := svc.convqueueR.GetInsertStr(newConvqueue)
 	if err != nil {
 		return err
 	}
 
-	err = svc.fmedia.CreateTx(nodeStr, fmediaStr, nlStr, fverStr, convStr)
+	err = svc.fmediaR.CreateTx(nodeStr, fmediaStr, nlStr, fverStr, convStr, fmpStrSlice)
 	if err != nil {
 		//Remove the file from storage as the transaction has already failed
 		err := os.Remove(dest)
