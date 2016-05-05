@@ -173,3 +173,28 @@ func TestNodelinkGetDeleteStr(t *testing.T) {
 		}
 	}
 }
+
+func TestNewNodeLink(t *testing.T) {
+	tests := []struct {
+		ChildNodeID  int
+		ParentNodeID int
+		LinkType     string
+		Want         error
+	}{
+		{242424, 323232, "FILE", nil},
+		{0, 323232, "FILE", errors.New("Parameter cannot be empty or 0")},
+		{242424, 0, "FILE", errors.New("Parameter cannot be empty or 0")},
+		{242424, 323232, "", errors.New("Parameter cannot be empty or 0")},
+		{0, 0, "", errors.New("Parameter cannot be empty or 0")},
+	}
+	for _, test := range tests {
+		nl, err := models.NewNodelink(test.ChildNodeID, test.ParentNodeID, test.LinkType)
+		if err != nil {
+			if err.Error() != test.Want.Error() {
+				t.Errorf("Got: %v, Want: %v", err.Error(), test.Want.Error())
+			}
+		} else {
+			fmt.Println("Result New NL: ", nl)
+		}
+	}
+}
