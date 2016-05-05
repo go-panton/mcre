@@ -61,14 +61,14 @@ type NodelinkRepository interface {
 }
 
 //NewNodelink return a new Nodelink struct based on paramter input
-func NewNodelink(childNodeID int) (Nodelink, error) {
-	if childNodeID == 0 {
-		return Nodelink{}, errors.New("Parameter cannot be empty")
+func NewNodelink(childNodeID, parentNodeID int, linkType string) (Nodelink, error) {
+	if childNodeID == 0 || parentNodeID == 0 || linkType == "" {
+		return Nodelink{}, errors.New("Parameter cannot be empty or 0")
 	}
 
 	return Nodelink{
 		LinkCNodeID: childNodeID,
-		LinkPNodeID: 200004,
-		LinkType:    "FILE",
+		LinkPNodeID: parentNodeID,
+		LinkType:    linkType,
 	}, nil
 }
