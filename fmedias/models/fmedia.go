@@ -78,7 +78,7 @@ type FmediaRepository interface {
 	// - transaction rollback
 	// - failed to commit the changes into database
 	//
-	CreateTx(string, string, string, string, string) error
+	CreateTx(string, string, string, string, string, []string) error
 }
 
 //NewFmedia return a Fmedia struct based on parameters passed in
