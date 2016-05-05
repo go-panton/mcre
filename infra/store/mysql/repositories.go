@@ -42,6 +42,10 @@ type fverinfoRepository struct {
 	db *sqlx.DB
 }
 
+type fmpolicyRepository struct {
+	db *sqlx.DB
+}
+
 type convqueueRepository struct {
 	db *sqlx.DB
 }
@@ -93,6 +97,11 @@ func NewNodeLink(db *sqlx.DB) nodes.NodelinkRepository {
 //NewFverinfo returns a FverinfoRepository based on database connection provided
 func NewFverinfo(db *sqlx.DB) fmedias.FverinfoRepository {
 	return &fverinfoRepository{db}
+}
+
+//NewFmpolicy returns a FmpolicyRepository based on database connection provided
+func NewFmpolicy(db *sqlx.DB) fmedias.FmpolicyRepository {
+	return &fmpolicyRepository{db}
 }
 
 //NewConvqueue returns a ConvqueueRepository based on database connection provided
@@ -265,13 +274,13 @@ func (r *nodeRepository) FindByDesc(nodeDesc string) ([]nodes.Node, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var r nodes.Node
+		var res nodes.Node
 
-		err = rows.StructScan(&r)
+		err = rows.StructScan(&res)
 		if err != nil {
 			return node, errors.New("Error while scanning result into Node")
 		}
-		node = append(node, r)
+		node = append(node, res)
 	}
 	err = rows.Err()
 	if err != nil {
@@ -396,13 +405,13 @@ func (r *fmediaRepository) FindByFileDesc(fileDesc string) ([]fmedias.Fmedia, er
 	fmedia := []fmedias.Fmedia{}
 
 	for rows.Next() {
-		var r fmedias.Fmedia
+		var res fmedias.Fmedia
 
-		err := rows.StructScan(&r)
+		err := rows.StructScan(&res)
 		if err != nil {
 			return []fmedias.Fmedia{}, errors.New("Error Scanning result into fmedia struct: " + err.Error())
 		}
-		fmedia = append(fmedia, r)
+		fmedia = append(fmedia, res)
 	}
 	err = rows.Err()
 	if err != nil {
@@ -502,13 +511,13 @@ func (r *nodelinkRepository) FindByChild(childNodeID int) ([]int, error) {
 	parentNodeIDs := []int{}
 
 	for rows.Next() {
-		var r int
+		var res int
 
-		err = rows.Scan(&r)
+		err = rows.Scan(&res)
 		if err != nil {
 			return []int{}, errors.New("Error scanning result into parent nodeID slice: " + err.Error())
 		}
-		parentNodeIDs = append(parentNodeIDs, r)
+		parentNodeIDs = append(parentNodeIDs, res)
 	}
 	err = rows.Err()
 	if err != nil {
@@ -533,13 +542,13 @@ func (r *nodelinkRepository) FindByParent(parentNodeID int) ([]int, error) {
 	childNodeIDs := []int{}
 
 	for rows.Next() {
-		var r int
+		var res int
 
-		err = rows.Scan(&r)
+		err = rows.Scan(&res)
 		if err != nil {
 			return []int{}, errors.New("Error scanning result into child nodeID slice: " + err.Error())
 		}
-		childNodeIDs = append(childNodeIDs, r)
+		childNodeIDs = append(childNodeIDs, res)
 	}
 	err = rows.Err()
 	if err != nil {
@@ -684,6 +693,135 @@ func (r *fverinfoRepository) GetDeleteStr(nodeID int) (string, error) {
 	return deleteStr, nil
 }
 
+func (r *fmpolicyRepository) Insert(fmpolicy fmedias.Fmpolicy) error {
+	if fmpolicy.NodeID == 0 {
+		return errors.New("NodeID cannot be empty or 0")
+	}
+	stmt, err := r.db.Prepare("INSERT fmpolicy SET fmpdownload=?, fmprevise=?, fmpview=?, fmpugid=?, fmpugtype=?, nodeid=?")
+	if err != nil {
+		return errors.New("Error when preparing fmpolicy prepared statement: " + err.Error())
+	}
+	_, err = stmt.Exec(fmpolicy.FmpDownload, fmpolicy.FmpRevise, fmpolicy.FmpView, fmpolicy.FmpUGID, fmpolicy.FmpUGType, fmpolicy.NodeID)
+	if err != nil {
+		return errors.New("Error when executing fmpolicy insert statement: " + err.Error())
+	}
+	return nil
+}
+
+func (r *fmpolicyRepository) Update(fmpolicy fmedias.Fmpolicy) error {
+	if fmpolicy.NodeID == 0 || fmpolicy.FmpID == 0 {
+		return errors.New("Parameter cannot be empty or 0")
+	}
+	stmt, err := r.db.Prepare("UPDATE fmpolicy SET fmpdownload=?, fmprevise=?, fmpview=?, fmpugid=?, fmpugtype=? WHERE fmpid=? AND nodeid=?")
+	if err != nil {
+		return errors.New("Error when preparing fmpolicy prepared statement: " + err.Error())
+	}
+	_, err = stmt.Exec(fmpolicy.FmpDownload, fmpolicy.FmpRevise, fmpolicy.FmpView, fmpolicy.FmpUGID, fmpolicy.FmpUGType, fmpolicy.FmpID, fmpolicy.NodeID)
+	if err != nil {
+		return errors.New("Error when executing fmpolicy statement: " + err.Error())
+	}
+	return nil
+}
+
+func (r *fmpolicyRepository) Delete(fmpID int) error {
+	if fmpID == 0 {
+		return errors.New("Fmp ID cannot be empty or 0")
+	}
+	stmt, err := r.db.Prepare("DELETE FROM fmpolicy WHERE fmpid=?")
+	if err != nil {
+		return errors.New("Error when preparing fmpolicy delete statement: " + err.Error())
+	}
+	_, err = stmt.Exec(fmpID)
+	if err != nil {
+		return errors.New("Error when executing fmpolicy delete statement: " + err.Error())
+	}
+	return nil
+}
+
+func (r *fmpolicyRepository) Find(fmpID int) (fmedias.Fmpolicy, error) {
+	if fmpID == 0 {
+		return fmedias.Fmpolicy{}, errors.New("Fmp ID cannot be empty or 0")
+	}
+	var fmpolicy fmedias.Fmpolicy
+	err := r.db.QueryRowx("SELECT * FROM fmpolicy WHERE fmpid=?", fmpID).StructScan(&fmpolicy)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return fmedias.Fmpolicy{}, errors.New("No result from database: " + err.Error())
+		}
+		return fmedias.Fmpolicy{}, errors.New("Error querying results from database: " + err.Error())
+	}
+	return fmpolicy, nil
+}
+
+func (r *fmpolicyRepository) FindUsingNodeID(nodeID int) ([]fmedias.Fmpolicy, error) {
+	if nodeID == 0 {
+		return []fmedias.Fmpolicy{}, errors.New("Node ID cannot be empty or 0")
+	}
+
+	rows, err := r.db.Queryx("SELECT * FROM fmpolicy WHERE nodeid=?", nodeID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []fmedias.Fmpolicy{}, errors.New("No result from database: " + err.Error())
+		}
+		return []fmedias.Fmpolicy{}, errors.New("Error querying database: " + err.Error())
+	}
+	defer rows.Close()
+
+	var fmps []fmedias.Fmpolicy
+
+	for rows.Next() {
+		var res fmedias.Fmpolicy
+		err := rows.StructScan(res)
+		if err != nil {
+			return []fmedias.Fmpolicy{}, errors.New("Error scanning result into struct: " + err.Error())
+		}
+		fmps = append(fmps, res)
+	}
+	err = rows.Err()
+	if err != nil {
+		return []fmedias.Fmpolicy{}, errors.New("Error iterating rows: " + err.Error())
+	}
+	return fmps, nil
+}
+
+func (r *fmpolicyRepository) GetInsertStr(fmpolicy fmedias.Fmpolicy) (string, error) {
+	if fmpolicy.NodeID == 0 {
+		return "", errors.New("Node ID cannot be empty or 0")
+	}
+	insertStr := "INSERT fmpolicy SET fmpdownload=" + strconv.Itoa(fmpolicy.FmpDownload) +
+		",fmprevise=" + strconv.Itoa(fmpolicy.FmpRevise) +
+		",fmpview=" + strconv.Itoa(fmpolicy.FmpView) +
+		",fmpugid=" + strconv.Itoa(fmpolicy.FmpUGID) +
+		",fmpugtype=" + strconv.Itoa(fmpolicy.FmpUGType) +
+		",nodeid=" + strconv.Itoa(fmpolicy.NodeID)
+
+	return insertStr, nil
+}
+
+func (r *fmpolicyRepository) GetUpdateStr(fmpolicy fmedias.Fmpolicy) (string, error) {
+	if fmpolicy.NodeID == 0 || fmpolicy.FmpID == 0 {
+		return "", errors.New("Parameter cannot be empty")
+	}
+	updateStr := "UPDATE fmpolicy SET fmpdownload=" + strconv.Itoa(fmpolicy.FmpDownload) +
+		",fmprevise=" + strconv.Itoa(fmpolicy.FmpRevise) +
+		",fmpview=" + strconv.Itoa(fmpolicy.FmpView) +
+		",fmpugid=" + strconv.Itoa(fmpolicy.FmpUGID) +
+		",fmpugtype=" + strconv.Itoa(fmpolicy.FmpUGType) +
+		",nodeid=" + strconv.Itoa(fmpolicy.NodeID) +
+		" WHERE fmpid=" + strconv.Itoa(fmpolicy.FmpID)
+
+	return updateStr, nil
+}
+
+func (r *fmpolicyRepository) GetDeleteStr(fmpID int) (string, error) {
+	if fmpID == 0 {
+		return "", errors.New("Fmp ID cannot be empty or 0")
+	}
+	deleteStr := "DELETE FROM fmpolicy WHERE fmpid=" + strconv.Itoa(fmpID)
+
+	return deleteStr, nil
+}
+
 func (r *convqueueRepository) Insert(convqueue fmedias.Convqueue) error {
 	if convqueue.NodeID == 0 || convqueue.Convtype == "" || convqueue.FExt == "" || convqueue.FFulpath == "" || convqueue.InsDate == "" || convqueue.Priority == 0 {
 		return errors.New("Parameter cannot be empty")
@@ -694,7 +832,7 @@ func (r *convqueueRepository) Insert(convqueue fmedias.Convqueue) error {
 	}
 	_, err = stmt.Exec(convqueue.NodeID, convqueue.Convtype, convqueue.FExt, convqueue.FFulpath, convqueue.InsDate, convqueue.Priority)
 	if err != nil {
-		return errors.New("Error exeucting convqueue statement: " + err.Error())
+		return errors.New("Error executing convqueue statement: " + err.Error())
 	}
 	return nil
 }
@@ -738,8 +876,8 @@ func (r *convqueueRepository) GetDeleteStr(nodeID int) (string, error) {
 }
 
 //CreateTx instantiate a transaction to commit all database insert query at once
-func (r *fmediaRepository) CreateTx(nodeStr, fmediaStr, nlStr, fverinfoStr, convStr string) error {
-	if nodeStr == "" || fmediaStr == "" || nlStr == "" || fverinfoStr == "" || convStr == "" {
+func (r *fmediaRepository) CreateTx(nodeStr, fmediaStr, nlStr, fverinfoStr, convStr string, fmpSlice []string) error {
+	if nodeStr == "" || fmediaStr == "" || nlStr == "" || fverinfoStr == "" || convStr == "" || len(fmpSlice) == 0 {
 		return errors.New("Parameter cannot be empty")
 	}
 
@@ -791,6 +929,17 @@ func (r *fmediaRepository) CreateTx(nodeStr, fmediaStr, nlStr, fverinfoStr, conv
 	if err != nil {
 		tx.Rollback()
 		return errors.New("Rolled-back due to: " + err.Error())
+	}
+	for _, s := range fmpSlice {
+		fmpStmt, e := tx.Prepare(s)
+		if e != nil {
+			return errors.New("Error preparing statement: " + err.Error())
+		}
+		_, err = fmpStmt.Exec()
+		if err != nil {
+			tx.Rollback()
+			return errors.New("Rolled-back due to: " + err.Error())
+		}
 	}
 	err = tx.Commit()
 	if err != nil {

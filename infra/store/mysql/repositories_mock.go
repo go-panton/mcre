@@ -24,6 +24,8 @@ type mockNodelinkRepository struct{}
 
 type mockConvqueueRepository struct{}
 
+type mockFmpolicyRepository struct{}
+
 //NewMockUserRepository return a mock UserRepository for testing purpose
 func NewMockUserRepository() users.UserRepository {
 	return &mockUserRepository{}
@@ -57,6 +59,11 @@ func NewMockNodelinkRepository() nodes.NodelinkRepository {
 //NewMockConvqueueRepository return a mock ConvqueueRepository for testing purpose
 func NewMockConvqueueRepository() fmedias.ConvqueueRepository {
 	return &mockConvqueueRepository{}
+}
+
+//NewMockFmpolicyRepository return a mock FmpolicyRepository for testing purpose
+func NewMockFmpolicyRepository() fmedias.FmpolicyRepository {
+	return &mockFmpolicyRepository{}
 }
 
 func (m *mockUserRepository) Find(username string) (*users.User, error) {
@@ -253,8 +260,8 @@ func (m *mockFmediaRepository) GetDeleteStr(nodeID int) (string, error) {
 	return deleteStr, nil
 }
 
-func (m *mockFmediaRepository) CreateTx(nodeStr, fmStr, nlStr, fvStr, convStr string) error {
-	if nodeStr == "" || fmStr == "" || nlStr == "" || fvStr == "" || convStr == "" {
+func (m *mockFmediaRepository) CreateTx(nodeStr, fmStr, nlStr, fvStr, convStr string, fmpSlice []string) error {
+	if nodeStr == "" || fmStr == "" || nlStr == "" || fvStr == "" || convStr == "" || len(fmpSlice) == 0 {
 		return errors.New("Parameter cannot be empty")
 	}
 	return nil
@@ -414,6 +421,93 @@ func (m *mockConvqueueRepository) GetDeleteStr(nodeID int) (string, error) {
 		return "", errors.New("Node ID cannot be empty or 0")
 	}
 	deleteStr := "DELETE FROM convqueue WHERE nodeid=" + strconv.Itoa(nodeID)
+
+	return deleteStr, nil
+}
+
+func (m *mockFmpolicyRepository) Insert(fmpolicy fmedias.Fmpolicy) error {
+	if fmpolicy.NodeID == 0 {
+		return errors.New("NodeID cannot be empty or 0")
+	}
+	return nil
+}
+
+func (m *mockFmpolicyRepository) Update(fmpolicy fmedias.Fmpolicy) error {
+	if fmpolicy.NodeID == 0 || fmpolicy.FmpID == 0 {
+		return errors.New("Parameter cannot be empty or 0")
+	}
+	return nil
+}
+
+func (m *mockFmpolicyRepository) Delete(fmpID int) error {
+	if fmpID == 0 {
+		return errors.New("Fmp ID cannot be empty or 0")
+	}
+	return nil
+}
+
+func (m *mockFmpolicyRepository) Find(fmpID int) (fmedias.Fmpolicy, error) {
+	if fmpID == 0 {
+		return fmedias.Fmpolicy{}, errors.New("Fmp ID cannot be empty or 0")
+	}
+	dummyFmpolicy := fmedias.Fmpolicy{
+		FmpID:       fmpID,
+		FmpDownload: 1,
+		FmpRevise:   0,
+		FmpView:     1,
+		FmpUGType:   0,
+		FmpUGID:     0,
+		NodeID:      223223,
+	}
+
+	return dummyFmpolicy, nil
+}
+
+func (m *mockFmpolicyRepository) FindUsingNodeID(nodeID int) ([]fmedias.Fmpolicy, error) {
+	if nodeID == 0 {
+		return []fmedias.Fmpolicy{}, errors.New("NodeID cannot be empty or 0")
+	}
+	dummyFmpolicy := []fmedias.Fmpolicy{
+		{FmpID: 123, FmpDownload: 1, FmpRevise: 1, FmpView: 0, FmpUGID: 0, FmpUGType: 0, NodeID: 232323},
+		{FmpID: 124, FmpDownload: 1, FmpRevise: 0, FmpView: 1, FmpUGID: 1, FmpUGType: 2, NodeID: 232323},
+	}
+	return dummyFmpolicy, nil
+}
+
+func (m *mockFmpolicyRepository) GetInsertStr(fmpolicy fmedias.Fmpolicy) (string, error) {
+	if fmpolicy.NodeID == 0 {
+		return "", errors.New("Node ID cannot be empty or 0")
+	}
+	insertStr := "INSERT fmpolicy SET fmpdownload=" + strconv.Itoa(fmpolicy.FmpDownload) +
+		",fmprevise=" + strconv.Itoa(fmpolicy.FmpRevise) +
+		",fmpview=" + strconv.Itoa(fmpolicy.FmpView) +
+		",fmpugid=" + strconv.Itoa(fmpolicy.FmpUGID) +
+		",fmpugtype=" + strconv.Itoa(fmpolicy.FmpUGType) +
+		",nodeid=" + strconv.Itoa(fmpolicy.NodeID)
+
+	return insertStr, nil
+}
+
+func (m *mockFmpolicyRepository) GetUpdateStr(fmpolicy fmedias.Fmpolicy) (string, error) {
+	if fmpolicy.NodeID == 0 || fmpolicy.FmpID == 0 {
+		return "", errors.New("Parameter cannot be empty or 0")
+	}
+	updateStr := "UPDATE fmpolicy SET fmpdownload=" + strconv.Itoa(fmpolicy.FmpDownload) +
+		",fmprevise=" + strconv.Itoa(fmpolicy.FmpRevise) +
+		",fmpview=" + strconv.Itoa(fmpolicy.FmpView) +
+		",fmpugid=" + strconv.Itoa(fmpolicy.FmpUGID) +
+		",fmpugtype=" + strconv.Itoa(fmpolicy.FmpUGType) +
+		",nodeid=" + strconv.Itoa(fmpolicy.NodeID) +
+		" WHERE fmpid=" + strconv.Itoa(fmpolicy.FmpID)
+
+	return updateStr, nil
+}
+
+func (m *mockFmpolicyRepository) GetDeleteStr(fmpID int) (string, error) {
+	if fmpID == 0 {
+		return "", errors.New("Fmp ID cannot be empty or 0")
+	}
+	deleteStr := "DELETE FROM fmpolicy WHERE fmpid=" + strconv.Itoa(fmpID)
 
 	return deleteStr, nil
 }
