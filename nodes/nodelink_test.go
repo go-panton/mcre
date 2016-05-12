@@ -82,10 +82,12 @@ func TestNodelinkFindByParent(t *testing.T) {
 
 	tests := []struct {
 		NodeID int
+		LinkType string
 		Want   error
 	}{
-		{224242, nil},
-		{0, errors.New("Parent Node ID cannot be empty or 0")},
+		{224242, "FILE", nil},
+		{0, "VER_LINKS", errors.New("Parameter cannot be empty or 0")},
+		{223232, "", errors.New("Parameter cannot be empty or 0")}
 	}
 	for _, test := range tests {
 		nodelink, err := nodelinks.FindByParent(test.NodeID)
