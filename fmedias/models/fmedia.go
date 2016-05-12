@@ -16,6 +16,20 @@ type Fmedia struct {
 	FType    int
 }
 
+//Statement struct stores all the database statement
+type Statement struct {
+	CreateNodeStmt   string
+	CreateFmStmt     string
+	CreateNlStmt     string
+	CreateFvStmt     string
+	CreateConvStmt   string
+	CreateNLSlice    []string
+	DeleteNLSlice    []string
+	UpdateCurrFmStmt string
+	UpdateCurrFvStmt string
+	CreateFmpSlice   []string
+}
+
 //FmediaRepository define the interface method
 type FmediaRepository interface {
 	// Insert insert the fmedia into database based on the fmedia provided
@@ -68,23 +82,25 @@ type FmediaRepository interface {
 	// - NodeID is 0 or not provided
 	GetDeleteStr(int) (string, error)
 
-	// CreateTx make a transaction to commit all insert query on single commit and
-	// have the ability to rollback if error happen
+	// CreateFileTx make a single transaction to execute all statement passed in through parameter
+	// on single commit and rollback on error
 	//
 	// Return error when:-
 	// - failed to create a transaction instance
-	// - failed to create preapred statement
+	// - failed to create prepared statement
 	// - failed to execute a statement
 	// - transaction rollback
 	// - failed to commit the changes into database
-	//
-	CreateTx(string, string, string, string, string, []string) error
+	CreateFileTx(string, string, string, string, string, []string) error
+
+	// CreateVersionTx instantiate a transaction to execute all statement passed by Statement struct passed in
+	CreateVersionTx(Statement) error
 }
 
 //NewFmedia return a Fmedia struct based on parameters passed in
 func NewFmedia(nodeID int, fDesc string, fgName string, fExt string, fFulpath string, foName string, fSize int) (Fmedia, error) {
 	if nodeID == 0 || fDesc == "" || fgName == "" || fExt == "" || fFulpath == "" || foName == "" || fSize == 0 {
-		return Fmedia{}, errors.New("Parameters cannot be empty")
+		return Fmedia{}, errors.New("New Fmedia parameters cannot be empty")
 	}
 
 	return Fmedia{
