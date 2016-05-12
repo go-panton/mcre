@@ -73,7 +73,7 @@ type NodeRepository interface {
 //NewNode returns a new Node based on parameters passed in
 func NewNode(nodeID int, fileName string, fileDT string) (Node, error) {
 	if nodeID == 0 || fileName == "" || fileDT == "" {
-		return Node{}, errors.New("Parameters cannot be empty")
+		return Node{}, errors.New("New node parameters cannot be empty")
 	}
 
 	return Node{
