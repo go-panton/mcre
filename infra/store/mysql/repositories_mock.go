@@ -107,7 +107,7 @@ func (m *mockSeqRepository) Update(query string, value int) error {
 
 func (m *mockNodeRepository) Insert(node nodes.Node) error {
 	if node.NodeID == 0 || node.NodeDT == "" || node.NodeDesc == "" || node.NodeGID == 0 {
-		return errors.New("Parameter cannot be empty")
+		return errors.New("Node: Parameter cannot be empty")
 	}
 
 	return nil
@@ -115,7 +115,7 @@ func (m *mockNodeRepository) Insert(node nodes.Node) error {
 
 func (m *mockNodeRepository) Update(node nodes.Node) error {
 	if node.NodeID == 0 || node.NodeDT == "" || node.NodeDesc == "" || node.NodeGID == 0 {
-		return errors.New("Parameter cannot be empty")
+		return errors.New("Node: Parameter cannot be empty")
 	}
 	return nil
 }
@@ -205,7 +205,20 @@ func (m *mockFmediaRepository) Find(nodeID int) (fmedias.Fmedia, error) {
 	if nodeID == 0 {
 		return fmedias.Fmedia{}, errors.New("Node ID cannot be empty or 0")
 	}
-	return fmedias.Fmedia{}, nil
+	dummyFmedia := fmedias.Fmedia{
+		NodeID:   nodeID,
+		FDesc:    "test.txt",
+		FExt:     ".txt",
+		FFulPath: "D:\\PantonSys\\PTD\\ISOStorage\\1\\",
+		FGName:   "345.txt",
+		FOName:   "test1.txt",
+		FRemark:  "Randomly Testing",
+		FSize:    43432,
+		FStatus:  1,
+		FType:    1,
+	}
+
+	return dummyFmedia, nil
 }
 
 func (m *mockFmediaRepository) FindByFileDesc(fileDesc string) ([]fmedias.Fmedia, error) {
@@ -235,7 +248,7 @@ func (m *mockFmediaRepository) GetInsertStr(fmedia fmedias.Fmedia) (string, erro
 
 func (m *mockFmediaRepository) GetUpdateStr(fmedia fmedias.Fmedia) (string, error) {
 	if fmedia.NodeID == 0 || fmedia.FDesc == "" || fmedia.FExt == "" || fmedia.FFulPath == "" || fmedia.FGName == "" || fmedia.FOName == "" || fmedia.FSize == 0 {
-		return "", errors.New("Paramater cannot be empty")
+		return "", errors.New("Fmedia: Paramater cannot be empty")
 	}
 	updateStr := "UPDATE fmedia SET fdesc=" + fmedia.FDesc +
 		",fext=" + fmedia.FExt +
@@ -260,10 +273,20 @@ func (m *mockFmediaRepository) GetDeleteStr(nodeID int) (string, error) {
 	return deleteStr, nil
 }
 
-func (m *mockFmediaRepository) CreateTx(nodeStr, fmStr, nlStr, fvStr, convStr string, fmpSlice []string) error {
+func (m *mockFmediaRepository) CreateFileTx(nodeStr, fmStr, nlStr, fvStr, convStr string, fmpSlice []string) error {
 	if nodeStr == "" || fmStr == "" || nlStr == "" || fvStr == "" || convStr == "" || len(fmpSlice) == 0 {
 		return errors.New("Parameter cannot be empty")
 	}
+	return nil
+}
+
+func (m *mockFmediaRepository) CreateVersionTx(stmt fmedias.Statement) error {
+	if stmt.CreateNodeStmt == "" || stmt.CreateFmStmt == "" || stmt.CreateNlStmt == "" ||
+		stmt.CreateFvStmt == "" || stmt.CreateConvStmt == "" || len(stmt.CreateNLSlice) == 0 ||
+		len(stmt.DeleteNLSlice) == 0 || len(stmt.CreateFmpSlice) == 0 {
+		return errors.New("Parameter cannot be empty")
+	}
+
 	return nil
 }
 
@@ -292,7 +315,15 @@ func (m *mockFverinfoRepository) Find(nodeID int) (fmedias.Fverinfo, error) {
 	if nodeID == 0 {
 		return fmedias.Fverinfo{}, errors.New("Node ID cannot be empty or 0")
 	}
-	return fmedias.Fverinfo{}, nil
+	dummyFverinfo := fmedias.Fverinfo{
+		NodeID:    232323,
+		EndDate:   "2016-09-25",
+		Remarks:   "This is a test",
+		StartDate: "2016-04-25",
+		Version:   "v1",
+		VerState:  1,
+	}
+	return dummyFverinfo, nil
 }
 
 func (m *mockFverinfoRepository) GetInsertStr(fverinfo fmedias.Fverinfo) (string, error) {
@@ -341,7 +372,7 @@ func (m *mockNodelinkRepository) Insert(nl nodes.Nodelink) error {
 
 func (m *mockNodelinkRepository) Delete(childNodeID, parentNodeID int) error {
 	if childNodeID == 0 || parentNodeID == 0 {
-		return errors.New("Parameter cannot be empty")
+		return errors.New("Nodelink: Parameter cannot be empty")
 	}
 	return nil
 }
@@ -353,9 +384,9 @@ func (m *mockNodelinkRepository) FindByChild(childNodeID int) ([]int, error) {
 	return []int{}, nil
 }
 
-func (m *mockNodelinkRepository) FindByParent(parentNodeID int) ([]int, error) {
+func (m *mockNodelinkRepository) FindByParent(parentNodeID int, linkType string) ([]int, error) {
 	if parentNodeID == 0 {
-		return []int{}, errors.New("Parent Node ID cannot be empty or 0")
+		return []int{}, errors.New("Parameter cannot be empty or 0")
 	}
 	return []int{}, nil
 }
@@ -369,7 +400,7 @@ func (m *mockNodelinkRepository) FindExact(childNodeID int, parentNodeID int, li
 
 func (m *mockNodelinkRepository) GetInsertStr(nl nodes.Nodelink) (string, error) {
 	if nl.LinkCNodeID == 0 || nl.LinkPNodeID == 0 || nl.LinkType == "" {
-		return "", errors.New("Parameter cannot be empty")
+		return "", errors.New("Nodelink: Parameter cannot be empty")
 	}
 	insertStr := "INSERT nodelink SET linkcnodeid=" + strconv.Itoa(nl.LinkCNodeID) +
 		",linkpnodeid=" + strconv.Itoa(nl.LinkPNodeID) +
@@ -380,7 +411,7 @@ func (m *mockNodelinkRepository) GetInsertStr(nl nodes.Nodelink) (string, error)
 
 func (m *mockNodelinkRepository) GetDeleteStr(childNodeID, parentNodeID int) (string, error) {
 	if childNodeID == 0 || parentNodeID == 0 {
-		return "", errors.New("Parameter cannot be empty")
+		return "", errors.New("Nodelink: Parameter cannot be empty")
 	}
 	deleteStr := "DELETE FROM nodelink WHERE linkcnodeid=" + strconv.Itoa(childNodeID) +
 		",linkpnodeid=" + strconv.Itoa(parentNodeID)
