@@ -75,7 +75,7 @@ type FmpolicyRepository interface {
 // - NodeID is empty or 0
 func NewFmpolicy(fmpdownload, fmprevise, fmpview, fmpugid, fmpugtype, nodeID int) (Fmpolicy, error) {
 	if nodeID == 0 {
-		return Fmpolicy{}, errors.New("Node ID cannot be empty")
+		return Fmpolicy{}, errors.New("New Fmpolicy Node ID cannot be empty")
 	}
 	return Fmpolicy{
 		FmpDownload: fmpdownload,

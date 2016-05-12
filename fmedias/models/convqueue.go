@@ -8,7 +8,7 @@ type Convqueue struct {
 	Convtype string
 	FExt     string
 	FFulpath string
-	InsDate  string //t.format("2006-01-02 12:47:22")
+	InsDate  string //t.format("2006-01-02 15:04:05")
 	Priority int
 }
 
@@ -23,7 +23,7 @@ type ConvqueueRepository interface {
 //NewConvqueue return a new COnvqueue struct based on parameters provided
 func NewConvqueue(nodeID int, insDate string, fExt string, fFulpath string) (Convqueue, error) {
 	if nodeID == 0 || insDate == "" || fExt == "" || fFulpath == "" {
-		return Convqueue{}, errors.New("Parameter cannot be empty")
+		return Convqueue{}, errors.New("New convqueue parameter cannot be empty")
 	}
 	return Convqueue{
 		NodeID:   nodeID,

@@ -59,7 +59,7 @@ type FverinfoRepository interface {
 //NewFverinfo return a new fverinfo struct based on parameters provided
 func NewFverinfo(nodeID int, startDate string, endDate string, version string, verState int, remarks string) (Fverinfo, error) {
 	if nodeID == 0 || startDate == "" || version == "" || verState == 0 {
-		return Fverinfo{}, errors.New("Parameter cannot be empty")
+		return Fverinfo{}, errors.New("New Fverinfo parameter cannot be empty")
 	}
 	return Fverinfo{
 		NodeID:    nodeID,
