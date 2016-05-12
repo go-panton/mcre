@@ -27,7 +27,7 @@ type NodelinkRepository interface {
 	// FindByChild return the slice of parent nodeID based on the child nodeID provided
 	//
 	// Return error when:-
-	// - child nodeID is 0
+	// - child nodeID is 0 or linkType is empty
 	// - find failed
 	// - no result
 	// - invalid query
@@ -39,7 +39,7 @@ type NodelinkRepository interface {
 	// - find failed
 	// - no result
 	// - invalid query
-	FindByParent(int) ([]int, error)
+	FindByParent(int, string) ([]int, error)
 	// FindExact return the nodelink based on the child nodeID and parent nodeID provided
 	//
 	// Return error when:-
@@ -63,7 +63,7 @@ type NodelinkRepository interface {
 //NewNodelink return a new Nodelink struct based on paramter input
 func NewNodelink(childNodeID, parentNodeID int, linkType string) (Nodelink, error) {
 	if childNodeID == 0 || parentNodeID == 0 || linkType == "" {
-		return Nodelink{}, errors.New("Parameter cannot be empty or 0")
+		return Nodelink{}, errors.New("New nodelink parameter cannot be empty or 0")
 	}
 
 	return Nodelink{
